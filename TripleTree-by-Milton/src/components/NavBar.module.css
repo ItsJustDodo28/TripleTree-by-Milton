@@ -7,7 +7,7 @@
     color: white;
     padding: 1rem;
     z-index: 1000;
-    
+    /*
     width: 100%;
     position: -webkit-sticky;
     position: sticky;
@@ -21,7 +21,7 @@
     justify-content: space-between;
     padding: 0.2rem calc((100vw - 1000px) / 2);
     z-index: 12;
-     Third Nav 
-     justify-content: flex-start; 
+     /*Third Nav 
+     justify-content: flex-start; */
   }
   

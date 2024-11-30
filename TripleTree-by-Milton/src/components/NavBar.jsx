@@ -1,11 +1,11 @@
 import styles from "./NavBar.module.css"
 
-function NavBar({ children }){
+function NavBar(props){
 
 
     return(
         <div className={styles.NavBar}>
-            {children}
+            {props.children}
         </div>
 
     )
