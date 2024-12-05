@@ -12,6 +12,11 @@
   color: white;
   padding: 1rem;
   z-index: 1000;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
   /*
   width: 100%;
   position: -webkit-sticky;
@@ -31,6 +36,62 @@
 }
 
 
+.menu-button {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: calc(-250px - (1rem *2) - 10px);
+  width: 250px;
+  height: 100%;
+  background-color: #333;
+  color: white;
+  transition: left 0.3s;
+  padding: 1rem;
+  z-index: 1000;
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  display: block;
+  margin-left: auto;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar ul li {
+  margin: 1rem 0;
+}
+
+.sidebar ul li a {
+  color: white;
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  .nav-buttons {
+    display: none;
+  }
+  .menu-button {
+    display: block;
+  }
+}
 
 
 
