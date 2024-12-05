@@ -5,13 +5,15 @@ import './App.css'
 import NavBar from './components/NavBar'
 
 function App() {
+  
   useEffect(() => {
     const adjustContentPadding = () => {
-      const navbar = document.querySelector('.navbar');
+      const nv = document.querySelector('.NavBar');
       const content = document.querySelector('.content');
-      if (navbar && content) {
-        const navbarHeight = navbar.offsetHeight;
-        content.style.marginTop = `${navbarHeight}px`;
+      if (nv && content) {
+        const navbarHeight = nv.offsetHeight;
+        content.style.top = `${navbarHeight}px`;
+        console.log(`Content padding-top: ${content.style.top}px`); // Debugging
         console.log(`Navbar height: ${navbarHeight}px`); // Debugging
       }
     };
@@ -31,12 +33,13 @@ function App() {
 
   return (
     <>
-      <NavBar>
-        <img src={Logo} height={120}/>
-      </NavBar>
+        <NavBar>
+          <img src={Logo} height={120}/>
+        </NavBar>
       <div className='content'>
         <p>hello</p>
-        <img src='https://www.hilton.com/im/en/NoHotel/2201396/all-ecomm-image-family-playing-beach.jpeg?impolicy=crop&cw=5000&ch=1388&gravity=NorthWest&xposition=0&yposition=927&rw=3840&rh=1068' />
+        <br/>
+        <img src='https://www.hilton.com/im/en/NoHotel/2201396/all-ecomm-image-family-playing-beach.jpeg?impolicy=crop&cw=5000&ch=1388&gravity=NorthWest&xposition=0&yposition=927&rw=3840&rh=1068' width={visualViewport.width}/>
       </div>
     </>
   )

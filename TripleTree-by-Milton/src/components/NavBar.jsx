@@ -1,12 +1,12 @@
-import styles from "./NavBar.module.css"
 
 function NavBar(props){
 
-
     return(
-        <div className={styles.NavBar}>
-            {props.children}
-        </div>
+        <nav className='NavBar'>
+            <div>
+                {props.children} 
+            </div>
+        </nav>
 
     )
 }
