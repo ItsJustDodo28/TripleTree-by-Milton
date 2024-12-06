@@ -31,6 +31,9 @@
     font-size: 3rem;
     font-weight: bold;
     margin-bottom: 1rem;
+    color: rgb(250, 243, 227);
+    font-family: 'Times New Roman';
+    
   }
   
   .hero-subtitle {
@@ -41,7 +44,7 @@
   .hero-subtitle .rating {
     margin-left: 0.5rem;
     font-size: 1.5rem;
-    color: gold;
+    color: #f9f6ef;
   }
   
   .features-icons {
@@ -273,41 +276,61 @@
   
   /* Carousel Section */
   .carousel {
-    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-  }
-  
-  .carousel-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .carousel-btn {
+    width: 100%; /* Ensure it spans the container's width */
+    max-width: 800px; /* Optional: Limit maximum width */
+    height: 400px; /* Fixed height to maintain consistency */
+    margin: 0 auto; /* Center the carousel */
+    overflow: hidden;
+    border-radius: 8px; /* Optional: Adds rounded corners */
+    background: #f0f0f0; /* Placeholder background for image loading */
+}
+
+.carousel-image-container {
+    flex: 1; /* Let the image container grow to take up available space */
+    height: 100%; /* Match the carousel's height */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Ensures the image fills the container without distortion */
+    transition: opacity 0.5s ease, transform 0.5s ease; /* Smooth transitions for effects */
+}
+
+.carousel-btn {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
     background: rgba(0, 0, 0, 0.5);
     color: white;
     border: none;
-    padding: 1rem;
+    padding: 10px 15px;
     font-size: 1.5rem;
     cursor: pointer;
+    z-index: 1;
     border-radius: 50%;
-    z-index: 10;
-  }
-  
-  .carousel-btn.prev {
-    left: -2rem;
-  }
-  
-  .carousel-btn.next {
-    right: -2rem;
-  }
+    outline: none;
+    transition: background 0.3s ease;
+}
+
+.carousel-btn:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.carousel-btn.prev {
+    left: 10px;
+}
+
+.carousel-btn.next {
+    right: 10px;
+}
   
   .carousel-btn:hover {
     background: rgba(0, 0, 0, 0.8);

@@ -1,6 +1,7 @@
 import "../styles/Home.css";
 import background from "/background.webp";
 import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
 
 
 const images = [
@@ -10,6 +11,7 @@ const images = [
   ];
 
 function HomePage() {
+  const nav = useNavigate();
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [rooms, setRooms] = useState(1);
@@ -52,10 +54,18 @@ function HomePage() {
       >
         <div className="overlay">
           <div className="hero-content">
+            <br/><br/><br/>
+           
+            <br/><br/><br/>
             <h1 className="hero-title">TripleTree By Milton</h1>
             <div className="hero-subtitle">
               <p>
-                <span>Alexandria, Egypt</span>
+
+                <span>
+                  <img src="location.png"></img>
+                  All Across Egypt
+                  </span>
+                <br></br>
                 <span className="rating">★★★★★</span>
               </p>
             </div>
@@ -117,7 +127,7 @@ function HomePage() {
             <div className="booking-item">
               <label>Rooms & Guests</label>
               <p
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                onClick={() => {setIsDropdownOpen(!isDropdownOpen); nav('');}}
                 className="dropdown-trigger"
               >
                 {rooms} room{rooms > 1 ? "s" : ""} - {guests} guest
@@ -173,17 +183,19 @@ function HomePage() {
           </p>
         </div>
         <div className="carousel">
-          <button className="carousel-btn prev" onClick={handlePrev}>
-            &#10094;
-          </button>
-          <img
-            src={images[currentIndex]}
-            alt={`Slide ${currentIndex + 1}`}
-            className="carousel-image"
-          />
-          <button className="carousel-btn next" onClick={handleNext}>
-            &#10095;
-          </button>
+            <button className="carousel-btn prev" onClick={() => { handlePrev(); nav(); }}>
+                &#10094;
+            </button>
+            <div className="carousel-image-container">
+                <img
+                    src={images[currentIndex]}
+                    alt={`Slide ${currentIndex + 1}`}
+                    className="carousel-image"
+                />
+            </div>
+            <button className="carousel-btn next" onClick={() => { handleNext(); nav(); }}>
+                &#10095;
+            </button>
         </div>
       </section>
     </div>

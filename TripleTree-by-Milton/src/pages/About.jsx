@@ -2,10 +2,10 @@ import "../styles/About.css";
 
 const About = () => {
     const teamMembers = [
-        { id: 1, name: "Mahmoud Ibrahim", role: "Founder & Chief Executive Officer", image: "https://via.placeholder.com/150", bio: "Jane leads the team with a passion for excellence and innovation." },
-        { id: 2, name: "Ahmed Koushen", role: "Chief Technical Officer", image: "https://via.placeholder.com/150", bio: "Emily crafts designs that bring our vision to life." },
-        { id: 3, name: "Abdelrahman Elawwa", role: "Chief Marketing Officer", image: "https://via.placeholder.com/150", bio: "John creates impactful campaigns to connect with our audience." },
-        { id: 4, name: "Shahd Selim", role: "Chief Operating Officer", image: "https://via.placeholder.com/150", bio: "Emily crafts designs that bring our vision to life." },
+        { id: 1, name: "Mahmoud Ibrahim", role: "Founder & Chief Executive Officer", image: "/Mahmoud.jpeg", bio: "Leads the team by setting the vision, strategy, and overall direction for the project. Ensures the team stays aligned with goals and delivers quality results." },
+        { id: 2, name: "Ahmed Koushen", role: "Chief Technical Officer", image: "/Talaat.jpeg", bio: "Manages the technical development of the website, including system architecture, coding, and integrating modern technologies for a seamless user experience." },
+        { id: 3, name: "Abdelrahman Elawwa", role: "Chief Marketing Officer", image: "/Awwa.jpeg", bio: "Develops and implements marketing strategies to promote the website. Focuses on audience engagement and creating impactful campaigns to increase visibility." },
+        { id: 4, name: "Shahd Selim", role: "Chief Operating Officer", image: "Shahd.jpeg", bio: "Coordinates daily operations and ensures tasks are completed efficiently. Manages timelines, workflows, and team collaboration to deliver the project on schedule." },
     ];
 
     return (

@@ -5,9 +5,12 @@ import { useNavigate } from "react-router-dom";
 //import { Link } from "react-router-dom";
 
 const rooms = [
-    { id: 1, name: "Deluxe Room", description: "A luxurious room with a king-sized bed.", basePrice: 200, image: "https://via.placeholder.com/300", features: ["Free WiFi", "Air Conditioning", "Room Service"] },
-    { id: 2, name: "Standard Room", description: "A comfortable room with a queen-sized bed.", basePrice: 150, image: "https://via.placeholder.com/300", features: ["Free Breakfast", "Flat-Screen TV", "Mini Fridge"] },
-    { id: 3, name: "Suite", description: "A spacious suite with a living area.", basePrice: 300, image: "https://via.placeholder.com/300", features: ["Living Area", "Private Balcony", "Luxury Bathroom"] },
+    { id: 1, name: "Single Room", description: "A budget-friendly room designed for one guest. Features include a single bed, a desk, free Wi-Fi, and basic amenities. Perfect for solo travelers or business trips.", basePrice: 60, image: "/single.jpg", features: ["Free WiFi", "Air Conditioning", "Room Service"] },
+    { id: 2, name: "Double Room", description: "A comfortable room suitable for two guests. It comes with one double bed, a private bathroom, and standard amenities", basePrice: 100, image: "/double.jpg", features: ["Free WiFi", "Air Conditioning", "Room Service", "Free Breakfast", "Flat-Screen TV", "Mini Fridge"] },
+    { id: 3, name: "Twin Room", description: "A room equipped with two single beds, ideal for friends or colleagues traveling together. Includes amenities", basePrice: 150, image: "/twin.jpg", features: ["Free WiFi", "Air Conditioning", "Room Service","Free Breakfast", "Flat-Screen TV", "Mini Fridge"] },
+    { id: 4, name: "King Room", description: "A luxurious room featuring a king-size bed, plush bedding, a seating area, and modern amenities. Ideal for couples or guests seeking extra space and comfort.", basePrice: 300, image: "/king.jpg", features: ["Free WiFi", "Air Conditioning", "Room Service","Free In-Room Dining", "Seating Area"] },
+    { id: 5, name: "Queen Room", description: "A cozy room with a queen-size bed, suitable for couples or solo travelers who prefer a larger bed. Includes amenities", basePrice: 450, image: "/queen.jpg", features: ["Free WiFi", "Air Conditioning", "Room Service","Free In-Room Dining", "private Balacony", "Luxury Bathroom"] },
+    { id: 6, name: "Suite", description: "A premium accommodation with a separate living area, luxurious furnishings, and exclusive amenities. Suites often include a king or queen bed, a kitchenette, and panoramic views.", basePrice: 700, image: "/suit.jpg", features: ["Free WiFi", "Air Conditioning", "Room Service","Free In-Room Dining", "Living Area", "Private Balcony", "Luxury Bathroom", "Small Kitchen"] },
 ];
 
 const RoomDetail = () => {
@@ -75,7 +78,7 @@ const RoomDetail = () => {
     return (
         <div className="room-detail-page">
             <h1>{room.name}</h1>
-            <img src={room.image} alt={room.name} className="room-image-detail" />
+            <img src={room.image} alt={room.name} className="room-image-detail"/>
             <p>{room.description}</p>
             <p className="room-price">Price: ${price.toFixed(2)} / night</p>
             <ul className="features-list">
