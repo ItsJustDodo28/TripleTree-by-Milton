@@ -62,41 +62,41 @@ function HomePage() {
               <p>
 
                 <span>
-                  <img src="location.png"></img>
+                  <img src="location.png" height={25} style={{marginRight:'0.5em', top: '0.20em', position: 'relative'}}/>
                   All Across Egypt
                   </span>
-                <br></br>
-                <span className="rating">★★★★★</span>
+                <br/><br/>
+                <span className="rating"><img src="/stars.png" height={30}/></span>
               </p>
             </div>
             <div className="features-icons">
               <div className="feature">
-                <span>🍷</span>
+                <span><img src="/food.png" height={50}/></span>
                 <p>All Inclusive</p>
               </div>
               <div className="feature">
-                <span>👶</span>
+                <span><img src="/kids.png" height={50}/></span>
                 <p>Kids Club</p>
               </div>
               <div className="feature">
-                <span>🎭</span>
+                <span><img src="/entertainment.png" height={50}/></span>
                 <p>Entertainment</p>
               </div>
               <div className="feature">
-                <span>🏋️‍♂️</span>
+                <span><img src="/gym.png" height={50}/></span>
                 <p>Fitness</p>
               </div>
               <div className="feature">
-                <span>🧘‍♂️</span>
+                <span><img src="/wellness.png" height={50}/></span>
                 <p>Wellness</p>
               </div>
               <div className="feature">
-                <span>🏖️</span>
+                <span><img src="/beach.png" height={50}/></span>
                 <p>Beach</p>
               </div>
               <div className="feature">
-                <span>💑</span>
-                <p>Romance</p>
+                <span><img src="/water-sp.png" height={50}/></span>
+                <p>Water Sportes</p>
               </div>
             </div>
           </div>

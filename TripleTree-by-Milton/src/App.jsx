@@ -7,6 +7,8 @@ import RoomDetail from "./pages/RoomDetail";
 import Payment from "./pages/Payment";
 import Locations from "./pages/Locations"
 import Offers from "./pages/Offers"
+import Register from "./pages/Register";
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -19,6 +21,8 @@ export default function App() {
           <Route path="payment" element={<Payment/>} />
           <Route path="locations" element={<Locations/>} />
           <Route path="offers" element={<Offers/>} />
+          <Route path="register" element={<Register/>} />
+
         </Route>
       </Routes>
     </BrowserRouter>

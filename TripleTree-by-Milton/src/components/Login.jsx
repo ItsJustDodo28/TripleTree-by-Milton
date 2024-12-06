@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { useState } from 'react';
 import './Login.css';
 
@@ -10,7 +11,12 @@ function Login({ onClose }) {
     // Handle login logic here
     console.log('Username:', username);
     console.log('Password:', password);
+
+        /////////////////////////////////////backend sign up here
+
     onClose(); // Close the modal after login
+
+    
   };
 
   return (
@@ -39,7 +45,10 @@ function Login({ onClose }) {
               required
             />
           </div>
-          <button type='submit' className='login-button'>Login</button>
+          <div style={{display:'grid', margin:'2em', gridTemplateColumns: 'auto auto'}}>
+            <button type='submit' className='login-button' style={{height: '3em', width: '5em'}}>Login</button>
+            <a href='/register'><center><p style={{margin: '0.02em'}}>Don&apos;t have an account?</p><p style={{margin: '0.02em'}}>Register Now!</p></center></a>
+          </div>
         </form>
       </div>
     </div>

@@ -9,7 +9,7 @@ const hotels = [
         description: "A luxurious stay in the heart of the city.",
         lat: 31.2001,
         lng: 29.9187,
-        image: "https://via.placeholder.com/150",
+        image: "/Luxury Retreat.jpg",
     },
     {
         id: 2,
@@ -17,7 +17,7 @@ const hotels = [
         description: "Comfortable and affordable lodging.",
         lat: 28.5091,
         lng: 34.5136,
-        image: "https://via.placeholder.com/150",
+        image: "/Cosy.jpg",
     },
     {
         id: 3,
@@ -25,7 +25,7 @@ const hotels = [
         description: "Relax and unwind by the ocean.",
         lat: 27.2579,
         lng: 33.8116,
-        image: "https://via.placeholder.com/150",
+        image: "/Beach-Side.jpg",
     },
     {
         id: 4,
@@ -33,7 +33,7 @@ const hotels = [
         description: "Escape to nature in luxury.",
         lat: 29.2032,
         lng: 25.5195,
-        image: "https://via.placeholder.com/150",
+        image: "/Mountain.jpg",
     },
 ];
 

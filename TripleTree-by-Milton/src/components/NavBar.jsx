@@ -35,7 +35,7 @@ function NavBar(props) {
         <button className='menu-button' onClick={toggleSidebar}>
           ☰
         </button>
-        <button className='sign-button' onClick={handelLogin}>Login</button>
+        <button className='sign-button' onClick={handelLogin}><img src="/login.png" height={35}/></button>
       </nav>
       <div className={`sidebar ${isOpen ? 'open' : ''}`}>
         <button className='close-button' onClick={toggleSidebar}>
