@@ -1,5 +1,6 @@
+/* eslint-disable react/prop-types */
 import { useState } from 'react';
-import { Link } from "react-router-dom";
+import NavButton from './navButton';
 
 function NavBar(props) {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,10 +16,9 @@ function NavBar(props) {
           {props.children}
         </div>
         <div className='nav-buttons'>
-          <Link to="/"><button>Home</button></Link>
-          <Link to="/test"><button>About</button></Link>
-          <button>Services</button>
-          <button>Contact</button>
+          <NavButton label="Home" to="/" />
+          <NavButton label="About" to="/about" />
+          <NavButton label="Reservations" to="/Reservations" />
         </div>
         <button className='menu-button' onClick={toggleSidebar}>
           ☰
@@ -29,10 +29,9 @@ function NavBar(props) {
           &times;
         </button>
         <ul>
-          <li><Link to="/"><button onClick={toggleSidebar}>Home</button></Link></li>
-          <li><Link to="/test"><button onClick={toggleSidebar}>About</button></Link></li>
-          <li><button onClick={toggleSidebar}>Services</button></li>
-          <li><button onClick={toggleSidebar}>Contact</button></li>
+          <li><NavButton label="Home" to="/" onClick={toggleSidebar} /></li>
+          <li><NavButton label="About" to="/about" onClick={toggleSidebar} /></li>
+          <li><NavButton label="Reservations" to="/Reservation" onClick={toggleSidebar} /></li>
         </ul>
       </div>
     </>

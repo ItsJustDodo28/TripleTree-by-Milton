@@ -1,20 +1,28 @@
-.content{
+.contentWrapper {
   position: absolute;
+  width: 100%;
+}
+
+.content{
+  background-color: white;
+  position: absolute;
+  width: 100%;
 }
 
 .NavBar{
-  position: fixed;
+  position: absolute;
   margin: 0px;
   top: 0;
   left: 0;
-  width: 100%;
-  background-color: #333;
+  width: calc(100% - 16px*2);
+  max-width: 100%;
+  background-color: rgba(51, 51, 51, 0.8);
   color: white;
   padding: 1rem;
   z-index: 1000;
 
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
 
   /*
@@ -35,6 +43,13 @@
    justify-content: flex-start; */
 }
 
+.nav-buttons {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  bottom: 0px;
+  color: turquoise;
+}
 
 .menu-button {
   display: none;
@@ -102,6 +117,12 @@
 
 
 
+
+
+
+
+
+
 /*#root {
   /*max-width: 1280px;
   margin: 0 auto;
@@ -117,6 +138,8 @@
 .logo {
   height: 6em;
   padding: 1.5em;
+  padding-top: 0px;
+  margin-top: 0px;
   will-change: filter;
   transition: filter 300ms;
 }

@@ -1,0 +1,100 @@
+.payment-page {
+    font-family: Arial, sans-serif;
+    background: #f9f6ef;
+    padding: 20px;
+    color: #333;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #8b7633;
+}
+
+.payment-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-between;
+}
+
+/* Payment Form */
+.payment-form {
+    flex: 0.6;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.payment-form h2 {
+    margin-bottom: 15px;
+    color: #8b7633;
+}
+
+.payment-form form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.payment-form label {
+    display: flex;
+    flex-direction: column;
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.payment-form input {
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
+.confirm-booking-button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 10px;
+    transition: background 0.3s;
+}
+
+.confirm-booking-button:hover {
+    background: #0056b3;
+}
+
+/* Sticky Reservation Summary */
+.reservation-summary {
+    flex: 0.35;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 20px; /* Sticks 20px from the top of the viewport */
+    height: fit-content;
+}
+
+.reservation-summary h2 {
+    margin-bottom: 15px;
+    color: #8b7633;
+}
+
+.reservation-summary p {
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+
+.reservation-summary ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 15px;
+    font-size: 1rem;
+    color: #555;
+}

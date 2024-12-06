@@ -1,0 +1,150 @@
+.room-detail-page {
+    font-family: Arial, sans-serif;
+    background: #f9f6ef;
+    padding: 20px;
+    text-align: center;
+    color: #333;
+}
+
+.room-image-detail {
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+.room-price {
+    font-size: 1.5rem;
+    color: #007bff;
+    margin-bottom: 20px;
+}
+
+.features-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+    color: #555;
+    font-size: 1rem;
+}
+
+.room-options {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.room-options h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.options button {
+    background: #f1f1f1;
+    color: #333;
+    border: 1px solid #ccc;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.3s;
+}
+
+.options button:hover {
+    background: #007bff;
+    color: white;
+    transform: scale(1.05);
+}
+
+.options button.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.book-now-button {
+    background: #8b7633;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 20px;
+}
+
+.book-now-button:hover {
+    background: #6d5c27;
+    transform: scale(1.05);
+}
+
+/* Popup Overlay */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Popup Content */
+.popup-content {
+    background: white;
+    color: black;
+    padding: 20px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    text-align: center;
+}
+
+.popup-content h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.extras-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.extras-list li {
+    margin-bottom: 10px;
+    font-size: 1rem;
+    color: #555;
+}
+
+.popup-actions {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.back-button,
+.continue-button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.back-button:hover,
+.continue-button:hover {
+    background: #0056b3;
+}

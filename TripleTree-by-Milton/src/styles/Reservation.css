@@ -1,0 +1,142 @@
+/* Scoped Container */
+.reservation-page {
+    background: #f9f6ef;
+    color: black;
+    padding: 40px;
+    font-family: 'Roboto', Arial, sans-serif;
+    min-height: 100vh;
+}
+
+.reservation-title {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 30px;
+    color: #333;
+    letter-spacing: 0.1rem;
+}
+
+/* Scoped Content Layout */
+.reservation-content {
+    display: flex;
+    flex-wrap: nowrap; /* Prevent wrapping */
+    gap: 20px;
+    align-items: flex-start;
+}
+
+/* Scoped Room Grid */
+.reservation-room-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    transition: all 0.3s ease;
+    flex: 1; /* Allow grid to shrink when details are shown */
+}
+
+.reservation-room-grid.shift-left {
+    flex: 0.6; /* Shrinks the grid to allow space for details */
+}
+
+/* Scoped Room Card */
+.reservation-room-card {
+    background: white;
+    color: black;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.reservation-room-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+.reservation-room-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.reservation-room-details {
+    padding: 15px;
+    text-align: left;
+}
+
+.reservation-room-details h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.reservation-price {
+    color: #8b7633;
+    font-weight: bold;
+    font-size: 1.2rem;
+    margin-top: 10px;
+}
+
+.reservation-details-container {
+    background: white;
+    color: black;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    flex: 0.4; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    position: sticky; 
+    top: 20px;
+    overflow-y: auto;
+}
+
+.reservation-detail-image {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.reservation-info h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.reservation-book-now-button {
+    display: inline-block;
+    background: #8b7633;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: all 0.3s;
+}
+
+.reservation-book-now-button:hover {
+    background: #6d5c27;
+    transform: scale(1.05);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .reservation-content {
+        flex-direction: column;
+    }
+
+    .reservation-room-grid.shift-left {
+        flex: 1;
+    }
+
+    .reservation-details-container {
+        width: 100%;
+        margin-top: 20px;
+    }
+}

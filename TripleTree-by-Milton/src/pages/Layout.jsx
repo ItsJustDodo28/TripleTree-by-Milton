@@ -1,21 +1,26 @@
-import { useEffect } from 'react'
-//import reactLogo from './assets/react.svg'
-import Logo from '/Logo.png'
-import '../App.css'
-import NavBar from '../components/NavBar'
-import { Outlet } from "react-router-dom";
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import '../App.css';
+import NavBar from '../components/NavBar';
+import { Outlet } from 'react-router-dom';
+import Logo from '/Logo.png';
 
-function App() {
-  
+
+function Layout() {
+  const location = useLocation();
+
   useEffect(() => {
     const adjustContentPadding = () => {
       const nv = document.querySelector('.NavBar');
       const content = document.querySelector('.content');
-      if (nv && content) {
+      if (nv && content && !content.querySelector('.hero')) {
         const navbarHeight = nv.offsetHeight;
         content.style.top = `${navbarHeight}px`;
         console.log(`Content padding-top: ${content.style.top}px`); // Debugging
         console.log(`Navbar height: ${navbarHeight}px`); // Debugging
+      }
+      else if (content && content.querySelector('.hero')) {
+        content.style.top = '0';
       }
     };
 
@@ -29,19 +34,18 @@ function App() {
     return () => {
       window.removeEventListener('resize', adjustContentPadding);
     };
-  }, []);
-
+  }, [location]); // Depend on location to re-run effect on route change
 
   return (
     <>
-        <NavBar>
-          <img src={Logo} height={120}/>
-        </NavBar>
+      <NavBar>
+        <img src={Logo} height={120} className='logo' />
+      </NavBar>
       <div className='content'>
         <Outlet />
       </div>
     </>
-  )
+  );
 }
 
-export default App;
+export default Layout;
