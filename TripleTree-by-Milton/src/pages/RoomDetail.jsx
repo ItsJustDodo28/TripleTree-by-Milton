@@ -7,18 +7,17 @@ import { useNavigate } from "react-router-dom";
 const rooms = [
     { id: 1, name: "Single Room", description: "A budget-friendly room designed for one guest. Features include a single bed, a desk, free Wi-Fi, and basic amenities. Perfect for solo travelers or business trips.", basePrice: 60, image: "/single.jpg", features: ["Free WiFi", "Air Conditioning", "Room Service"] },
     { id: 2, name: "Double Room", description: "A comfortable room suitable for two guests. It comes with one double bed, a private bathroom, and standard amenities", basePrice: 100, image: "/double.jpg", features: ["Free WiFi", "Air Conditioning", "Room Service", "Free Breakfast", "Flat-Screen TV", "Mini Fridge"] },
-    { id: 3, name: "Twin Room", description: "A room equipped with two single beds, ideal for friends or colleagues traveling together. Includes amenities", basePrice: 150, image: "/twin.jpg", features: ["Free WiFi", "Air Conditioning", "Room Service","Free Breakfast", "Flat-Screen TV", "Mini Fridge"] },
-    { id: 4, name: "King Room", description: "A luxurious room featuring a king-size bed, plush bedding, a seating area, and modern amenities. Ideal for couples or guests seeking extra space and comfort.", basePrice: 300, image: "/king.jpg", features: ["Free WiFi", "Air Conditioning", "Room Service","Free In-Room Dining", "Seating Area"] },
-    { id: 5, name: "Queen Room", description: "A cozy room with a queen-size bed, suitable for couples or solo travelers who prefer a larger bed. Includes amenities", basePrice: 450, image: "/queen.jpg", features: ["Free WiFi", "Air Conditioning", "Room Service","Free In-Room Dining", "private Balacony", "Luxury Bathroom"] },
-    { id: 6, name: "Suite", description: "A premium accommodation with a separate living area, luxurious furnishings, and exclusive amenities. Suites often include a king or queen bed, a kitchenette, and panoramic views.", basePrice: 700, image: "/suite.jpg", features: ["Free WiFi", "Air Conditioning", "Room Service","Free In-Room Dining", "Living Area", "Private Balcony", "Luxury Bathroom", "Small Kitchen"] },
+    { id: 3, name: "Twin Room", description: "A room equipped with two single beds, ideal for friends or colleagues traveling together. Includes amenities", basePrice: 150, image: "/twin.jpg", features: ["Free WiFi", "Air Conditioning", "Room Service", "Free Breakfast", "Flat-Screen TV", "Mini Fridge"] },
+    { id: 4, name: "King Room", description: "A luxurious room featuring a king-size bed, plush bedding, a seating area, and modern amenities. Ideal for couples or guests seeking extra space and comfort.", basePrice: 300, image: "/king.jpg", features: ["Free WiFi", "Air Conditioning", "Room Service", "Free In-Room Dining", "Seating Area"] },
+    { id: 5, name: "Queen Room", description: "A cozy room with a queen-size bed, suitable for couples or solo travelers who prefer a larger bed. Includes amenities", basePrice: 450, image: "/queen.jpg", features: ["Free WiFi", "Air Conditioning", "Room Service", "Free In-Room Dining", "private Balacony", "Luxury Bathroom"] },
+    { id: 6, name: "Suite", description: "A premium accommodation with a separate living area, luxurious furnishings, and exclusive amenities. Suites often include a king or queen bed, a kitchenette, and panoramic views.", basePrice: 700, image: "/suite.jpg", features: ["Free WiFi", "Air Conditioning", "Room Service", "Free In-Room Dining", "Living Area", "Private Balcony", "Luxury Bathroom", "Small Kitchen"] },
 ];
 
-const RoomDetail = () => {
-    var p = useParams();
-    const room = rooms.find((room) => room.id === parseInt(p.id));
-    console.log(p.id);
-    
-    const navigate = useNavigate();
+const RoomDetail = (props) => {
+    const room = rooms.find((room) => room.id === parseInt(props.room.id));
+
+
+    //const navigate = useNavigate();
     const [selectedOption, setSelectedOption] = useState("plain");
     const [price, setPrice] = useState(room.basePrice);
     const [showPopup, setShowPopup] = useState(false);
@@ -61,6 +60,7 @@ const RoomDetail = () => {
     };
 
     const handleContinueToPayment = () => {
+        /*
         navigate("/payment", {
             state: {
                 room,
@@ -68,7 +68,15 @@ const RoomDetail = () => {
                 addons,
                 totalPrice: price + addons.reduce((acc, addon) => acc + (addon === "Spa Package" ? 50 : addon === "Airport Transfers" ? 30 : addon === "Meal Package" ? 40 : 0), 0),
             },
-        });
+        });*/
+        props.selectRoom({
+            room,
+            selectedOption,
+            addons,
+            totalPrice: price + addons.reduce((acc, addon) => acc + (addon === "Spa Package" ? 50 : addon === "Airport Transfers" ? 30 : addon === "Meal Package" ? 40 : 0), 0)
+        })
+
+        handleClosePopup();
     };
 
     if (!room) {
@@ -78,7 +86,7 @@ const RoomDetail = () => {
     return (
         <div className="room-detail-page">
             <h1>{room.name}</h1>
-            <img src={room.image} alt={room.name} className="room-image-detail"/>
+            <img src={room.image} alt={room.name} className="room-image-detail" />
             <p>{room.description}</p>
             <p className="room-price">Price: ${price.toFixed(2)} / night</p>
             <ul className="features-list">
@@ -119,7 +127,7 @@ const RoomDetail = () => {
             </div>
 
             <button className="book-now-button" onClick={handleConfirmBooking}>
-                Confirm Booking
+                Select
             </button>
             {showPopup && (
                 <div className="popup-overlay">
@@ -128,7 +136,7 @@ const RoomDetail = () => {
                         <ul className="extras-list">
                             <li>
                                 <label>
-                                    <input type="checkbox" onChange={() => toggleAddon("Spa Package")}/>
+                                    <input type="checkbox" onChange={() => toggleAddon("Spa Package")} />
                                     Spa Package (+$50)
                                 </label>
                             </li>
@@ -150,7 +158,7 @@ const RoomDetail = () => {
                                 Back to Options
                             </button>
                             <button className="continue-button" onClick={handleContinueToPayment}>
-                                Continue to Payment
+                                Select
                             </button>
                         </div>
                     </div>

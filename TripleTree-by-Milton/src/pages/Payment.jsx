@@ -3,9 +3,9 @@ import { useLocation } from "react-router-dom";
 
 
 const Payment = () => {
-const location = useLocation();
-const state = location.state || {};
-    
+    const location = useLocation();
+    const state = location.state || {};
+
     return (
         <div className="payment-page">
             <h1>Complete Your Booking</h1>
@@ -48,15 +48,33 @@ const state = location.state || {};
                 {/* Sticky Reservation Summary */}
                 <div className="reservation-summary">
                     <h2>Reservation Summary</h2>
-                    <p><strong>Room:</strong> {state.room.name}</p>
-                    <p><strong>Option:</strong> {state.selectedOption}</p>
-                    <p><strong>Addons:</strong></p>
                     <ul>
-                        {state.addons.map((addon, index) => (
-                            <li key={index}>{addon}</li>
+                        {state.roomsx.map((room, index) => (
+                            <div key={index}>
+                                <li>
+                                    <p><strong>Room:</strong> {room.name}</p>
+                                </li>
+                                <li>
+                                    <ul>
+                                        {
+                                            room.addons.map((addon, index) => (
+                                                <li key={index}>
+                                                    <p><strong>Addons:</strong> {addon}</p>
+                                                </li>
+                                            ))
+                                        }
+                                    </ul>
+                                </li>
+                                <li>
+                                    <p><strong>Guests:</strong> {room.guests}</p>
+                                </li>
+                                <li>
+                                    <p><strong>Price:</strong> {room.price}</p>
+                                </li>
+                            </div>
                         ))}
                     </ul>
-                    <p><strong>Total Price:</strong> ${state.totalPrice.toFixed(2)}</p>
+                    <p><strong>Total Price:</strong> ${state.total}</p>
                 </div>
             </div>
         </div>
