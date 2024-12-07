@@ -1,26 +1,44 @@
 import "../styles/Offers.css";
-
+import Elite from "/TripleTreeEliteDiscout.jpg"
+import Celebrate from "/Celebrate.jpg"
+import WorkAndRelax from "/WorkAndRelax.jpg"
+import StayLonger from "/StayLonger.jpg"
+import Breakfast from "/Breakfast.jpg"
 const offers = [
     {
         id: 1,
-        title: "2X Points",
-        description: "Earn double points for each night of your stay.",
-        image: "https://via.placeholder.com/400x300",
-        tags: ["Earn Points", "Honors Member"],
-    },
-    {
-        id: 2,
-        title: "Honors Discount Advance Purchase",
-        description: "Save up to 17% off our Best Available Rate* by booking in advance. It pays to plan ahead!",
-        image: "https://via.placeholder.com/400x300",
+        title: "Stay Longer, Save More",
+        description: "Extend your getaway and enjoy up to 20% off when you stay for 3 nights or more. The longer you stay, the more you save!",
+        image: StayLonger,
         tags: ["Discount"],
     },
     {
+        id: 2,
+        title: "Complimentary Breakfast Package",
+        description: "Start your mornings right with a complimentary breakfast for every night of your stay. Book now and indulge in a delicious start to your day.",
+        image: Breakfast,
+        tags: ["Breakfast Included"],
+    },
+    {
         id: 3,
-        title: "Family Vacation Package",
-        description: "Enjoy special deals for your family vacation with complimentary breakfast included.",
-        image: "https://via.placeholder.com/400x300",
-        tags: ["Family", "Breakfast Included"],
+        title: "Exclusive Members' Discount",
+        description: "Join our rewards program and unlock an extra 10% off your bookings, plus exclusive benefits like free upgrades and late checkout.",
+        image: Elite,
+        tags: ["Discount", "Elite Member"],
+    },
+    {
+        id: 4,
+        title: "Celebrate Your Special Occasion",
+        description: "Celebrate birthdays, anniversaries, or any special day with us! Book our celebration package and receive complimentary room decorations and a cake.",
+        image: Celebrate,
+        tags: ["Discount" , "Special Occasion"],
+    },
+    {
+        id: 5,
+        title: "Work & Relax Package",
+        description: "Need a change of scenery? Book your workcation with high-speed Wi-Fi, a comfortable workspace, and complimentary coffee, all at a special discounted rate.",
+        image: WorkAndRelax,
+        tags: ["Discount"],
     },
 ];
 

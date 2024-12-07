@@ -6,7 +6,7 @@ const hotels = [
     {
         id: 1,
         name: "TripleTree: Luxury Retreat",
-        description: "A luxurious stay in the heart of the city.",
+        description: "Nestled in the heart of Alexandria, this branch combines modern luxury with the charm of the Mediterranean. Perfect for both business and leisure, it offers elegant rooms, fine dining, and exceptional city views.",
         lat: 31.2001,
         lng: 29.9187,
         image: "/Luxury Retreat.jpg",
@@ -14,7 +14,7 @@ const hotels = [
     {
         id: 2,
         name: "TripleTree: Cozy Escape",
-        description: "Comfortable and affordable lodging.",
+        description:"Located in the serene town of Dahab, this branch provides a peaceful and affordable getaway. Surrounded by natural beauty, it's ideal for guests looking for a relaxing retreat close to the Red Sea.",
         lat: 28.5091,
         lng: 34.5136,
         image: "/Cosy.jpg",
@@ -22,7 +22,7 @@ const hotels = [
     {
         id: 3,
         name: "TripleTree: Beachside Resort",
-        description: "Relax and unwind by the ocean.",
+        description: "Situated along the pristine shores of Hurghada, this resort offers stunning beach views, exciting water activities, and a tranquil atmosphere for the ultimate seaside vacation.",
         lat: 27.2579,
         lng: 33.8116,
         image: "/Beach-Side.jpg",
@@ -30,7 +30,7 @@ const hotels = [
     {
         id: 4,
         name: "TripleTree: Mountain Retreat",
-        description: "Escape to nature in luxury.",
+        description: "Escape to the breathtaking Siwa Oasis, where this branch combines natural beauty with luxury. Ideal for adventurers and peace seekers, it offers a unique mix of relaxation and exploration in the desert landscape.",
         lat: 29.2032,
         lng: 25.5195,
         image: "/Mountain.jpg",
@@ -74,9 +74,8 @@ const Locations = () => {
                 </div>
             </div>
 
-            {/* Right Side: Google Maps */}
             <div className="map-container">
-                <LoadScript googleMapsApiKey="AIzaSyBLNV_yj1q6X21zNopvPJV31MrHwwGRsj4">
+                <LoadScript googleMapsApiKey="AIzaSyBLNV_yj1q6X21zNopvPJV31MrHwwGRsj4"> 
                     <GoogleMap
                         mapContainerStyle={mapContainerStyle}
                         center={center}

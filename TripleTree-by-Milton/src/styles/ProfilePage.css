@@ -1,0 +1,178 @@
+.profile-page {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: #f9f9f9;
+    padding: 20px;
+}
+.profile-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.profile-card .profile-picture {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin-bottom: 15px;
+    border: 4px solid #8b7345;
+}
+
+.profile-card h1 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    color: #8b7345;
+}
+
+.profile-card p {
+    margin: 5px 0;
+    color: #555;
+}
+
+.profile-card .loyalty-section p {
+    font-size: 1rem;
+    margin: 10px 0;
+}
+
+.profile-card .settings-button {
+    background: #8b7345;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background 0.3s ease;
+}
+
+.profile-card .settings-button:hover {
+    background: #6d5c27;
+}
+.booking-history {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.booking-history h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: #8b7345;
+}
+
+.booking-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.booking-card {
+    background: #f3f3f3;
+    border-radius: 10px;
+    padding: 15px;
+    flex: 1 1 calc(50% - 20px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.booking-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.booking-card h3 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.booking-card p {
+    margin: 5px 0;
+    color: #555;
+}
+
+.booking-card .view-details-button {
+    background: #8b7345;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.3s ease;
+}
+
+.booking-card .view-details-button:hover {
+    background: #6d5c27;
+}
+.settings-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    position: relative;
+}
+
+.modal-content h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #8b7345;
+}
+
+.modal-content .settings-button {
+    display: block;
+    width: 100%;
+    background: #8b7345;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.modal-content .settings-button:hover {
+    background: #6d5c27;
+}
+
+.modal-content .delete-account-button {
+    background: #ff4c4c;
+}
+
+.modal-content .delete-account-button:hover {
+    background: #cc0000;
+}
+
+.close-modal {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #333;
+}

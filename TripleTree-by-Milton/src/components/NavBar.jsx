@@ -31,6 +31,7 @@ function NavBar(props) {
           <NavButton label="Reservations" to="/Reservations" />
           <NavButton label="Locations" to="/Locations" />
           <NavButton label="Offers" to="/offers" />
+          <NavButton label="Help" to="/CustomerSupport" />
         </div>
         <button className='menu-button' onClick={toggleSidebar}>
           ☰
@@ -48,6 +49,7 @@ function NavBar(props) {
           <li><NavButton label="Reservations" to="/Reservation" onClick={toggleSidebar} /></li>
           <li><NavButton label="Locations" to="/Locations" onClick={toggleSidebar} /></li>
           <li><NavButton label="Offers" to="/offers" onClick={toggleSidebar} /></li>
+          <li><NavButton label="Help" to="/CustomerSupport" onClick={toggleSidebar} /></li>
         </ul>
       </div>
       {isModalOpen && <Login onClose={closeModal}/>}

@@ -55,7 +55,7 @@ function Layout() {
       <div className='content'>
         <Outlet />
       </div>
-      <Fter><p>aweuriehrf</p></Fter>
+      <Fter></Fter>
     </div>
   );
 }

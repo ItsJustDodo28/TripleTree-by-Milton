@@ -8,7 +8,14 @@ const images = [
     "/image 1.webp",
     "/image 2.webp",
     "/image 3.webp",
-    "/beach.png"
+    "/Cosy.jpg",
+    "/double.jpg",
+    "/Mountain.jpg",
+    "/Beach-Side.jpg",
+    "/queen.jpg",
+    "/background.webp",
+    "/king.jpg",
+
   ];
 
 function HomePage() {
@@ -172,14 +179,10 @@ function HomePage() {
         <div className="welcome-message">
           <h2>Welcome to TripleTree By Milton</h2>
           <p>
-            All-Inclusive premium experience around the clock, The TripleTree is a unique All-Inclusive exclusive resort where
-            exclusivity and luxury define every experience, every time. Our
-            luxurious family getaway is beautifully located on pristine,
-            sparkling white sands of Saadiyat Island overlooking the Arabian
-            Gulf.
+          Discover luxury and comfort with TripleTree by Milton, where hospitality meets elegance. With exceptional service and unique experiences, our hotels provide the perfect escape for relaxation, adventure, or business. Located in stunning destinations across Egypt, we blend modern amenities with warm hospitality to create unforgettable stays for every guest.
           </p>
           <p className="check-in-out">
-            <span>Check-in - 3:00 PM</span>
+            <span>Check-in - 2:00 PM</span>
             <span>Check-out - 12:00 PM</span>
           </p>
         </div>

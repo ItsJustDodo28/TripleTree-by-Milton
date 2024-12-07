@@ -21,10 +21,9 @@
     left: -45%;
 }
 
-/* Scoped Content Layout */
 .reservation-content {
     display: flex;
-    flex-wrap: nowrap; /* Prevent wrapping */
+    flex-wrap: nowrap;
     gap: 20px;
     align-items: flex-start;
 }
@@ -42,7 +41,6 @@
     flex: 0.6; /* Shrinks the grid to allow space for details */
 }
 
-/* Scoped Room Card */
 .reservation-room-card {
     background: white;
     color: black;
@@ -130,8 +128,6 @@
     background: #6d5c27;
     transform: scale(1.05);
 }
-
-/* Responsive Design */
 @media (max-width: 768px) {
     .reservation-content {
         flex-direction: column;

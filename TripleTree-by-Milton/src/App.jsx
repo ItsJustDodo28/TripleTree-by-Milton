@@ -8,6 +8,8 @@ import Payment from "./pages/Payment";
 import Locations from "./pages/Locations"
 import Offers from "./pages/Offers"
 import Register from "./pages/Register";
+import CustomerService from "./pages/CustomerSupport";
+import ProfilePage from "./pages/ProfilePage";
 
 export default function App() {
   return (
@@ -22,6 +24,8 @@ export default function App() {
           <Route path="locations" element={<Locations/>} />
           <Route path="offers" element={<Offers/>} />
           <Route path="register" element={<Register/>} />
+          <Route path="CustomerSupport" element={<CustomerService/>} />
+          <Route path="ProfilePage" element={<ProfilePage/>} />
 
         </Route>
       </Routes>

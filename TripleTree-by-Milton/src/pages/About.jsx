@@ -13,15 +13,14 @@ const About = () => {
             {/* Hero Section */}
             <section className="about-hero">
                 <h1>About Us</h1>
-                <p>We strive to deliver the best experiences for our guests, combining luxury and comfort with world-class service.</p>
+                <p>At TripleTree by Milton, we are dedicated to redefining hospitality through exceptional service, luxurious accommodations, and unforgettable experiences. With locations in some of the most beautiful destinations, we offer a perfect blend of comfort, relaxation, and adventure, ensuring every guest feels valued and cared for.</p>
             </section>
 
             {/* Mission Statement */}
             <section className="about-mission">
                 <h2>Our Mission</h2>
                 <p>
-                    At TripleTree By Milton, our mission is to redefine hospitality by creating unforgettable experiences that exceed expectations. 
-                    We are committed to excellence in every aspect of our service.
+                Our mission is to provide unparalleled hospitality by delivering exceptional service, creating memorable experiences, and offering luxurious comfort. At TripleTree by Milton, we are committed to exceeding guest expectations and making every stay extraordinary.
                 </p>
             </section>
 
@@ -44,8 +43,7 @@ const About = () => {
             <section className="about-history">
                 <h2>Our Journey</h2>
                 <p>
-                    Established in 2024, TripleTree By Milton has grown from a single luxury resort into a symbol of excellence in the hospitality industry. 
-                    We’ve welcomed guests from around the world, creating cherished memories along the way.
+                Founded in 2024, TripleTree by Milton has become a symbol of luxury hospitality in Egypt. We combine world-class comfort, exciting activities, and family-friendly services to create unforgettable experiences. Whether you seek relaxation or adventure, TripleTree by Milton ensures excellence in every stay.
                 </p>
             </section>
         </div>
