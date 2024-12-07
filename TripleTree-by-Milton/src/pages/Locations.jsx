@@ -76,7 +76,7 @@ const Locations = () => {
 
             {/* Right Side: Google Maps */}
             <div className="map-container">
-                <LoadScript googleMapsApiKey="YOUR_API_KEY">
+                <LoadScript googleMapsApiKey="AIzaSyBLNV_yj1q6X21zNopvPJV31MrHwwGRsj4">
                     <GoogleMap
                         mapContainerStyle={mapContainerStyle}
                         center={center}

@@ -96,7 +96,7 @@ function HomePage() {
               </div>
               <div className="feature">
                 <span><img src="/water-sp.png" height={50}/></span>
-                <p>Water Sportes</p>
+                <p>Watersports</p>
               </div>
             </div>
           </div>
