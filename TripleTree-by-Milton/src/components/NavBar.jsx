@@ -46,7 +46,7 @@ function NavBar(props) {
           <button className='sign-button.side' onClick={handelLogin}>Login</button>
           <li><NavButton label="Home" to="/" onClick={toggleSidebar} /></li>
           <li><NavButton label="About" to="/about" onClick={toggleSidebar} /></li>
-          <li><NavButton label="Reservations" to="/Reservation" onClick={toggleSidebar} /></li>
+          <li><NavButton label="Reservations" to="/Reservations" onClick={toggleSidebar} /></li>
           <li><NavButton label="Locations" to="/Locations" onClick={toggleSidebar} /></li>
           <li><NavButton label="Offers" to="/offers" onClick={toggleSidebar} /></li>
           <li><NavButton label="Help" to="/CustomerSupport" onClick={toggleSidebar} /></li>
