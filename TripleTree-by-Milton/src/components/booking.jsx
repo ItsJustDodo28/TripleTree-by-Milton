@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 function Booking(props) {
     const nav = useNavigate();
@@ -85,7 +86,7 @@ function Booking(props) {
                         {guests !== 1 ? "s" : ""}
                     </p>
                 </div>
-                <button className="booking-button">Book Now</button>
+                <Link to="/Reservations"><button className="booking-button">Book Now</button></Link>
             </div>
         </section>
     );
