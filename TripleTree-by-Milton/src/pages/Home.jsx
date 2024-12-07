@@ -8,6 +8,7 @@ const images = [
     "/image 1.webp",
     "/image 2.webp",
     "/image 3.webp",
+    "/beach.png"
   ];
 
 function HomePage() {
