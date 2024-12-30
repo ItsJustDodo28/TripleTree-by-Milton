@@ -58,7 +58,6 @@ input, select, textarea {
   text-align: center;
   width: calc(100% - 16px*2);
   max-width: 100%;
-  z-index: 10000;
   font-family: Arial, sans-serif;
 }
 .footer-container {

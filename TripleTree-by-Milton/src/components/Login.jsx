@@ -7,21 +7,37 @@ function Login({ onClose }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate(); // Initialize navigate
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Simulate login logic
-    console.log("Username:", username);
-    console.log("Password:", password);
+    try {
+        const response = await fetch('http://localhost:5000/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+            credentials: 'include', // Include cookies in the request
+        });
 
-    /////////////////////////////////////backend sign up here
+        const data = await response.json();
 
-    onClose(); // Close the modal after login
+        if (!response.ok) {
+            setError(data.error || 'Login failed');
+            return;
+        }
 
-  
-    navigate("/ProfilePage");
-  };
+        // Redirect based on role
+        if (data.role === 'admin') {
+            navigate('/AdminDashboard');
+        } else if (data.role === 'user') {
+            navigate('/ProfilePage');
+        }
+    } catch (err) {
+        setError('An error occurred. Please try again: ' + err);
+    }
+    onClose();
+};
 
   return (
     <div className="login-modal">
@@ -71,6 +87,7 @@ function Login({ onClose }) {
                 <p style={{ margin: "0.02em" }}>Register Now!</p>
               </center>
             </a>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
           </div>
         </form>
       </div>

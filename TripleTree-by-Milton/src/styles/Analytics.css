@@ -1,0 +1,21 @@
+.analytics-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    background-color: #f9f6ef;
+    padding: 2rem;
+  }
+  
+  .analytics-chart {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+  }
+  
+  .analytics-chart h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: #494949;
+  }
+  

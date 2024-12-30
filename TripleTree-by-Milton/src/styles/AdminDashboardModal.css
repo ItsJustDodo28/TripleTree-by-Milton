@@ -1,0 +1,135 @@
+/* Modal Background */
+.admin-dashboard-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  /* Modal Content */
+  .admin-dashboard-modal-content {
+    background-color: white;
+    color: #494949;
+    padding: 30px;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    position: relative;
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  /* Modal Title */
+  .admin-dashboard-modal-title {
+    margin: 0;
+    font-size: 1.8em;
+    color: #767b7e;
+    text-align: center;
+  }
+  
+  /* Close Button */
+  .admin-dashboard-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #767b7e;
+    cursor: pointer;
+  }
+  
+  .admin-dashboard-modal-close:hover {
+    color: #494949;
+  }
+  
+  /* Form Layout */
+  .admin-dashboard-modal-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 20px;
+  }
+  
+  .admin-dashboard-modal-form-group {
+    grid-column: span 2;
+  }
+  
+  .admin-dashboard-modal-label {
+    display: block;
+    font-size: 0.9em;
+    margin-bottom: 5px;
+    color: #494949;
+  }
+  
+  .admin-dashboard-modal-input,
+  select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+  }
+  
+  .admin-dashboard-modal-error {
+    color: red;
+    font-size: 0.8em;
+    margin-top: 5px;
+  }
+  
+  /* Actions */
+  .admin-dashboard-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    grid-column: span 2;
+    gap: 15px;
+  }
+  
+  .admin-dashboard-save-button,
+  .admin-dashboard-cancel-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  
+  .admin-dashboard-save-button {
+    background-color: #494949;
+    color: white;
+  }
+  
+  .admin-dashboard-save-button:hover {
+    background-color: #767b7e;
+    transform: scale(1.05);
+  }
+  
+  .admin-dashboard-cancel-button {
+    background-color: #f4f4f4;
+    color: #494949;
+  }
+  
+  .admin-dashboard-cancel-button:hover {
+    background-color: #ddd;
+    transform: scale(1.05);
+  }
+  
+  /* Animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+  

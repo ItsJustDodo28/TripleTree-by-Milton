@@ -10,6 +10,8 @@ import Offers from "./pages/Offers"
 import Register from "./pages/Register";
 import CustomerService from "./pages/CustomerSupport";
 import ProfilePage from "./pages/ProfilePage";
+import AdminDashboard from "./pages/AdminDashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {
   return (
@@ -25,7 +27,19 @@ export default function App() {
           <Route path="offers" element={<Offers/>} />
           <Route path="register" element={<Register/>} />
           <Route path="CustomerSupport" element={<CustomerService/>} />
-          <Route path="ProfilePage" element={<ProfilePage/>} />
+          <Route path="ProfilePage" element={
+            <ProtectedRoute allowedRoles={['user']}>
+              <ProfilePage/>
+            </ProtectedRoute>
+            } />
+          <Route path="AdminDashboard" element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <AdminDashboard/>
+            </ProtectedRoute>
+            } />
+
+          <Route path="unauthorized" element={<h1>You don&apos;t have access</h1>} />
+          <Route path="*" element={<><h1>404</h1><h1 style={{fontSize: 13}}>Page Not Found</h1></>} />
 
         </Route>
       </Routes>
