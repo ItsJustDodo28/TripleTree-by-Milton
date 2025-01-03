@@ -36,7 +36,6 @@ const verifyToken = (req, res, next) => {
 
         req.userId = decoded.userId;
         req.role = decoded.role;
-        console.log('Decoded:', decoded.role);
         next();
     });
 };
@@ -80,9 +79,10 @@ app.post('/api/register', (req, res) => {
                     // Create a new user linked to the existing guest
                     const hashedPassword = await bcrypt.hash(password, SEED);
                     const newUserQuery = `
-                            INSERT INTO users (guest_id, password)
-                            VALUES (?, ?)
-                        `;
+                    INSERT INTO users (guest_id, password, loyalty_points, membership_level)
+                    VALUES (?, ?, 0, 'Bronze')
+                `;
+                
                     db.query(newUserQuery, [guestId, hashedPassword], (newUserErr) => {
                         if (newUserErr) {
                             console.error('Error creating user:', newUserErr.message);
@@ -146,9 +146,10 @@ app.post('/api/register', (req, res) => {
                             }
                             // Insert into the users table
                             const newUserQuery = `
-                                INSERT INTO users (guest_id, password)
-                                VALUES (?, ?)
+                            INSERT INTO users (guest_id, password, loyalty_points, membership_level)
+                            VALUES (?, ?, 0, 'Bronze')
                             `;
+                        
                             db.query(newUserQuery, [guestId, hashedPassword], (newUserErr) => {
                                 if (newUserErr) {
                                     console.error('Error creating user:', newUserErr.message);
@@ -276,7 +277,6 @@ app.post('/api/login', (req, res) => {
 
 
 app.get('/api/protected', verifyToken, (req, res) => {
-    console.log('Role:', req.role);
     res.json({ role: req.role });
 });
 
@@ -307,6 +307,287 @@ const handleLogout = async () => {
 app.get('/api', (req, res) => {
     res.send('Welcome to the TripleTree API!');
 });
+
+app.get('/api/profile', verifyToken, (req, res) => {
+    const userId = req.userId;
+
+    // Query for user data
+    const userQuery = `
+        SELECT u.user_id, u.guest_id, u.loyalty_points, u.membership_level, 
+               g.first_name, g.last_name, 
+               GROUP_CONCAT(DISTINCT ge.email ORDER BY ge.email SEPARATOR ', ') AS emails,
+               GROUP_CONCAT(DISTINCT gp.phone_number ORDER BY gp.phone_number SEPARATOR ', ') AS phones
+        FROM users u
+        JOIN guest g ON u.guest_id = g.guest_id
+        LEFT JOIN guest_email ge ON g.guest_id = ge.guest_id
+        LEFT JOIN guest_phone gp ON g.guest_id = gp.guest_id
+        WHERE u.user_id = ?
+        GROUP BY u.user_id;
+    `;
+
+    const bookingsQuery = `
+    SELECT 
+        b.booking_id,
+        b.status,
+        rt.name AS roomType,
+        b.check_in_date AS checkIn,
+        b.check_out_date AS checkOut,
+        b.total_price AS totalCost
+    FROM 
+        booking b
+    JOIN 
+        room r ON b.room_id = r.room_id
+    JOIN 
+        room_type rt ON r.type_id = rt.type_id
+    WHERE 
+        b.booking_id IN (
+            SELECT booking_id
+            FROM bookingguest
+            WHERE guest_id = (SELECT guest_id FROM users WHERE user_id = ?)
+        )
+    ORDER BY 
+        b.check_in_date DESC;
+`;
+
+
+    // Fetch user data
+    db.query(userQuery, [userId], (err, userResults) => {
+        if (err) {
+            console.error('Error fetching user profile:', err.message);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        if (userResults.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        const userProfile = userResults[0];
+
+        // Fetch booking history
+        db.query(bookingsQuery, [userId], (err, bookingResults) => {
+            if (err) {
+                console.error('Error fetching booking history:', err.message);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+
+            res.json({
+                user: userProfile,
+                bookings: bookingResults,
+            });
+        });
+    });
+});
+
+// Update user profile
+app.put('/api/profile', verifyToken, (req, res) => {
+    const userId = req.userId;
+    const { firstName, lastName, emails, phones } = req.body;
+
+    // Update guest data
+    const updateGuestQuery = `
+        UPDATE guest
+        SET first_name = ?, last_name = ?
+        WHERE guest_id = (SELECT guest_id FROM users WHERE user_id = ?);
+    `;
+
+    // Update emails
+    const deleteEmailsQuery = `DELETE FROM guest_email WHERE guest_id = (SELECT guest_id FROM users WHERE user_id = ?);`;
+    const insertEmailQuery = `INSERT INTO guest_email (guest_id, email) VALUES (?, ?);`;
+
+    // Update phones
+    const deletePhonesQuery = `DELETE FROM guest_phone WHERE guest_id = (SELECT guest_id FROM users WHERE user_id = ?);`;
+    const insertPhoneQuery = `INSERT INTO guest_phone (guest_id, phone_number) VALUES (?, ?);`;
+
+    db.query(updateGuestQuery, [firstName, lastName, userId], (err) => {
+        if (err) {
+            console.error('Error updating guest profile:', err.message);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        const guestIdQuery = `SELECT guest_id FROM users WHERE user_id = ?`;
+        db.query(guestIdQuery, [userId], (err, guestResults) => {
+            if (err) {
+                console.error('Error fetching guest ID:', err.message);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+
+            const guestId = guestResults[0].guest_id;
+
+            // Update emails
+            db.query(deleteEmailsQuery, [userId], (err) => {
+                if (err) console.error('Error deleting emails:', err.message);
+                if (emails) {
+                    const emailList = emails.split(',').map((email) => email.trim());
+                    emailList.forEach((email) => {
+                        db.query(insertEmailQuery, [guestId, email], (err) => {
+                            if (err) console.error('Error adding email:', err.message);
+                        });
+                    });
+                }
+            });
+
+            // Update phones
+            db.query(deletePhonesQuery, [userId], (err) => {
+                if (err) console.error('Error deleting phones:', err.message);
+                if (phones) {
+                    const phoneList = phones.split(',').map((phone) => phone.trim());
+                    phoneList.forEach((phone) => {
+                        db.query(insertPhoneQuery, [guestId, phone], (err) => {
+                            if (err) console.error('Error adding phone:', err.message);
+                        });
+                    });
+                }
+            });
+
+            res.json({ success: true, message: 'Profile updated successfully' });
+        });
+    });
+});
+
+// Delete user account
+app.delete('/api/profile', verifyToken, (req, res) => {
+    const userId = req.userId;
+
+    const deleteUserQuery = `
+        DELETE FROM users WHERE user_id = ?;
+    `;
+
+    db.query(deleteUserQuery, [userId], (err) => {
+        if (err) {
+            console.error('Error deleting user:', err.message);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        res.clearCookie('authToken');
+        res.json({ success: true, message: 'Account deleted successfully' });
+    });
+});
+
+app.get('/api/booking-details/:id', verifyToken, (req, res) => {
+    const bookingId = req.params.id;
+
+    const bookingDetailsQuery = `
+        SELECT 
+            b.booking_id,
+            b.status,
+            b.check_in_date AS checkIn,
+            b.check_out_date AS checkOut,
+            b.total_price AS totalCost,
+            rt.name AS roomType,
+            rt.description AS roomDescription,
+            rt.features AS roomFeatures,
+            h.name AS hotelName,
+            h.address AS hotelAddress,
+            p.status AS paymentStatus,
+            s.service_id, s.name AS serviceName, s.price AS servicePrice
+        FROM 
+            booking b
+        JOIN 
+            room r ON b.room_id = r.room_id
+        JOIN 
+            room_type rt ON r.type_id = rt.type_id
+        JOIN 
+            hotel h ON r.hotel_id = h.hotel_id
+        LEFT JOIN 
+            payment p ON b.booking_id = p.booking_id
+        LEFT JOIN 
+            bookingservice bs ON b.booking_id = bs.booking_id
+        LEFT JOIN 
+            service s ON bs.service_id = s.service_id
+        WHERE 
+            b.booking_id = ?;
+    `;
+
+    db.query(bookingDetailsQuery, [bookingId], (err, results) => {
+        if (err) {
+            console.error('Error fetching booking details:', err.message);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Booking not found' });
+        }
+
+        const booking = results[0];
+        const services = results
+            .filter((row) => row.service_id !== null)
+            .map((row) => ({
+                service_id: row.service_id,
+                name: row.serviceName,
+                price: row.servicePrice,
+            }));
+
+        res.json({
+            booking_id: booking.booking_id,
+            checkIn: booking.checkIn,
+            checkOut: booking.checkOut,
+            totalCost: booking.totalCost,
+            roomType: booking.roomType,
+            roomDescription: booking.roomDescription,
+            roomFeatures: booking.roomFeatures,
+            hotelName: booking.hotelName,
+            hotelAddress: booking.hotelAddress,
+            paymentStatus: booking.paymentStatus,
+            services,
+            status: booking.status,
+        });
+    });
+});
+app.delete('/api/cancel-booking/:id', verifyToken, (req, res) => {
+    const bookingId = req.params.id;
+
+    // Check if the booking exists and is eligible for cancellation
+    const checkBookingQuery = `
+        SELECT 
+            booking_id, check_in_date, status
+        FROM 
+            booking 
+        WHERE 
+            booking_id = ? AND NOT status = 'Confirmed';
+    `;
+
+    db.query(checkBookingQuery, [bookingId], (err, results) => {
+        if (err) {
+            console.error('Error checking booking:', err.message);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+        console.log('Check Booking Query Results:', results);
+        if (results.length === 0) {
+            return res.status(400).json({ error: 'Booking not found or cannot be canceled.' });
+        }
+
+        const booking = results[0];
+        const checkInDate = new Date(booking.check_in_date);
+        const currentDate = new Date();
+
+        // Check if cancellation is allowed (not within 48 hours of check-in)
+        const timeDifference = checkInDate.getTime() - currentDate.getTime();
+        const hoursDifference = timeDifference / (1000 * 60 * 60);
+
+        if (hoursDifference < 48 || booking.status === 'Canceled') {
+            return res.status(400).json({ error: 'Cannot cancel bookings within 48 hours of check-in.' });
+        }
+
+        // Proceed to cancel the booking
+        const cancelBookingQuery = `
+            UPDATE booking
+            SET status = 'Canceled'
+            WHERE booking_id = ?;
+        `;
+
+        db.query(cancelBookingQuery, [bookingId], (err) => {
+            if (err) {
+                console.error('Error canceling booking:', err.message);
+                return res.status(500).json({ error: 'Error canceling booking.' });
+            }
+            console.log('Booking canceled successfully.');
+            res.json({ success: true, message: 'Booking canceled successfully.' });
+        });
+    });
+});
+
+
+
 
 
 app.get('/api/rooms', verifyToken, (req, res) => {

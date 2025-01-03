@@ -5,6 +5,7 @@
     background: #f9f9f9;
     padding: 20px;
 }
+
 .profile-card {
     background: white;
     border-radius: 10px;
@@ -52,6 +53,7 @@
 .profile-card .settings-button:hover {
     background: #6d5c27;
 }
+
 .booking-history {
     background: white;
     border-radius: 10px;
@@ -110,6 +112,7 @@
 .booking-card .view-details-button:hover {
     background: #6d5c27;
 }
+
 .settings-modal {
     position: fixed;
     top: 0;
@@ -175,4 +178,17 @@
     border: none;
     cursor: pointer;
     color: #333;
+}
+.cancel-booking-button {
+    display: block;
+    width: 100%;
+    background: #8b7345;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
 }
