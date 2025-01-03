@@ -12,6 +12,7 @@ import CustomerService from "./pages/CustomerSupport";
 import ProfilePage from "./pages/ProfilePage";
 import AdminDashboard from "./pages/AdminDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Login from "./components/Login";
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
           <Route path="offers" element={<Offers/>} />
           <Route path="register" element={<Register/>} />
           <Route path="CustomerSupport" element={<CustomerService/>} />
+          <Route path="login" element={<Login/>} />
           <Route path="ProfilePage" element={
             <ProtectedRoute allowedRoles={['user']}>
               <ProfilePage/>

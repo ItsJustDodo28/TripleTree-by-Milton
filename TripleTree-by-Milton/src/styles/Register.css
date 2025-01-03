@@ -50,3 +50,14 @@
     color: red;
     font-size: 0.875rem;
   }
+  
+  .success {
+    color: green;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+  }
+  
+  .register-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }

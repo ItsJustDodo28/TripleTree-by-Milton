@@ -1,17 +1,14 @@
 import { useState } from 'react';
 import '../styles/Register.css';
-import {isValidPhoneNumber} from 'react-phone-number-input'
-import PhoneInput from 'react-phone-number-input'
-import 'react-phone-number-input/style.css'
+import { isValidPhoneNumber } from 'react-phone-number-input';
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 import { useNavigate } from 'react-router-dom';
-
-
-
+import { Alert, Button, Spinner } from 'react-bootstrap';
 
 function Register() {
   const navigate = useNavigate();
 
-  const [username, setUsername] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -19,107 +16,137 @@ function Register() {
   const [address, setAddress] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [phoneError, setPhoneError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle registration logic here
-    console.log('Username:', username);
-    console.log('First Name:', firstName);
-    console.log('Last Name:', lastName);
-    console.log('Email:', email);
-    console.log('Password:', password);
-    console.log('Address:', address);
-    console.log('Phone Number:', phoneNumber);
+    setErrorMessage('');
+    setSuccessMessage('');
 
-    if (isValidPhoneNumber(phoneNumber)) {
-      setPhoneError('');
-      console.log('Valid phone number');
-
-        /////////////////////////////////////backend sign up here
-        navigate('/')
-
-    } else {
+    if (!isValidPhoneNumber(phoneNumber)) {
       setPhoneError('Invalid phone number');
-      console.log('Invalid phone number');
+      return;
+    }
+    setPhoneError('');
+
+    setIsLoading(true);
+
+    const payload = {
+      firstname: firstName,
+      lastname: lastName,
+      email,
+      password,
+      address,
+      phone: phoneNumber,
+    };
+
+    try {
+      const response = await fetch('http://localhost:5000/api/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccessMessage(data.message || 'Registration successful!');
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
+      } else {
+        setErrorMessage(data.error || 'An error occurred during registration.');
+      }
+    } catch (error) {
+      console.error('Error during registration:', error);
+      setErrorMessage('Failed to register. Please try again later.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className='register-container'>
+    <div className="register-container">
       <h2>Register</h2>
       <form onSubmit={handleSubmit}>
-        <div className='form-group'>
-          <label htmlFor='username'>Username</label>
+        <div className="form-group">
+          <label htmlFor="firstName">First Name</label>
           <input
-            type='text'
-            id='username'
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </div>
-        <div className='form-group'>
-          <label htmlFor='firstName'>First Name</label>
-          <input
-            type='text'
-            id='firstName'
+            type="text"
+            id="firstName"
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             required
           />
         </div>
-        <div className='form-group'>
-          <label htmlFor='lastName'>Last Name</label>
+        <div className="form-group">
+          <label htmlFor="lastName">Last Name</label>
           <input
-            type='text'
-            id='lastName'
+            type="text"
+            id="lastName"
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
             required
           />
         </div>
-        <div className='form-group'>
-          <label htmlFor='email'>Email</label>
+        <div className="form-group">
+          <label htmlFor="email">Email</label>
           <input
-            type='email'
-            id='email'
+            type="email"
+            id="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
-        <div className='form-group'>
-          <label htmlFor='password'>Password</label>
+        <div className="form-group">
+          <label htmlFor="password">Password</label>
           <input
-            type='password'
-            id='password'
+            type="password"
+            id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>
-        <div className='form-group'>
-          <label htmlFor='address'>Address (optional)</label>
+        <div className="form-group">
+          <label htmlFor="address">Address (optional)</label>
           <input
-            type='text'
-            id='address'
+            type="text"
+            id="address"
             value={address}
             onChange={(e) => setAddress(e.target.value)}
           />
         </div>
-        <div className='form-group'>
-          <label htmlFor='phoneNumber'>Phone Number</label>
+        <div className="form-group">
+          <label htmlFor="phoneNumber">Phone Number</label>
           <PhoneInput
-            id='phoneNumber'
+            id="phoneNumber"
             value={phoneNumber}
             onChange={setPhoneNumber}
             defaultCountry="EG"
             required
           />
-          <p className='error'>&nbsp; {phoneError ? phoneError : ''} </p>
+          <p className="error">{phoneError || ''}</p>
         </div>
-        <button type='submit' className='register-button'>Register</button>
+        <Button type="submit" className="register-button" variant="primary" disabled={isLoading}>
+          {isLoading ? <Spinner animation="border" size="sm" /> : 'Register'}
+        </Button>
       </form>
+      {successMessage && (
+        <Alert variant="success" className="mt-3">
+          {successMessage}
+        </Alert>
+      )}
+      {errorMessage && (
+        <Alert variant="danger" className="mt-3">
+          {errorMessage}
+        </Alert>
+      )}
     </div>
   );
 }

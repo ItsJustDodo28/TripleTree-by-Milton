@@ -3,15 +3,15 @@ const cors = require('cors');
 const db = require('./database'); // Import the database connection
 const path = require('path');
 const cookieParser = require('cookie-parser');
-
+require('dotenv').config();
+const SEED = parseInt(process.env.SALT_ROUNDS, 10);
 const app = express();
 const PORT = 5000;
 
-//const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const SECRET_KEY = 'your_secret_key';
-
 // Middleware
 app.use(cors({
     credentials: true, // Allow credentials (cookies)
@@ -36,6 +36,7 @@ const verifyToken = (req, res, next) => {
 
         req.userId = decoded.userId;
         req.role = decoded.role;
+        console.log('Decoded:' , decoded.role);
         next();
     });
 };
@@ -43,46 +44,202 @@ const verifyToken = (req, res, next) => {
 
 
 //////////////////////////////////// login //////////////////////////////////////
+app.post('/api/register', (req, res) => {
+    const {firstname, lastname, email, password, address, phone} = req.body;
+    console.log(req.body);
+    console.log(SEED);
+    // Validate input
+    if (!password || !email || !firstname || !lastname || !phone) {
+        return res.status(400).json({ error: 'All fields are required' });
+    }
 
+        // Insert the user into the database
+        const emailQuery = `SELECT guest_id FROM guest_email WHERE email = ?`;
+        db.query(emailQuery, [email], (emailErr, emailResults) => {
+            if (emailErr) {
+                console.error('Error checking email:', emailErr.message);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+    
+            if (emailResults.length > 0) {
+                // Email exists, fetch the guest_id
+                const guestId = emailResults[0].guest_id;
+    
+                // Check if a user is already linked to this guest_id
+                const userQuery = `SELECT * FROM users WHERE guest_id = ?`;
+                db.query(userQuery, [guestId], async (userErr, userResults) => {
+                    if (userErr) {
+                        console.error('Error checking user:', userErr.message);
+                        return res.status(500).json({ error: 'Internal server error' });
+                    }
+    
+                    if (userResults.length > 0) {
+                        // User already exists
+                        return res.status(400).json({ error: 'A user is already linked to this email.' });
+                    } else {
+                        // Create a new user linked to the existing guest
+                        const hashedPassword = await bcrypt.hash(password, SEED);
+                        const newUserQuery = `
+                            INSERT INTO users (guest_id, password)
+                            VALUES (?, ?)
+                        `;
+                        db.query(newUserQuery, [guestId, hashedPassword], (newUserErr) => {
+                            if (newUserErr) {
+                                console.error('Error creating user:', newUserErr.message);
+                                return res.status(500).json({ error: 'Error creating user' });
+                            } 
+                            const newPhoneQuery = `
+                            INSERT INTO guest_phone (guest_id, phone_number)
+                            VALUES (?, ?)
+                        `;
+                        db.query(newPhoneQuery, [guestId, phone], (newPhoneErr) => {
+                            if (newPhoneErr) {
+                                console.error('Error inserting phone:', newPhoneErr.message);
+                                return res.status(500).json({ error: 'Error inserting phone' });
+                            }
+                            res.json({ success: true, message: 'User registered successfully and linked to existing guest.' });
+                        }); 
+                        });
+                        
+                    }
+                });
+            } else {
+                // Email not found, create a new guest
+                bcrypt.hash(password, SEED, (hashErr, hashedPassword) => {
+                    if (hashErr) {
+                        console.error('Error hashing password:', hashErr.message);
+                        return res.status(500).json({ error: 'Internal server error' });
+                    }
+    
+                    // Insert into the guest table
+                    const guestQuery = `
+                        INSERT INTO guest (first_name, last_name)
+                        VALUES (?, ?)
+                    `;
+                    db.query(guestQuery, [firstname, lastname], (guestErr, guestResult) => {
+                        if (guestErr) {
+                            console.error('Error inserting guest:', guestErr.message);
+                            return res.status(500).json({ error: 'Error inserting guest' });
+                        }
+    
+                        const guestId = guestResult.insertId;
+    
+                        // Insert email into the guest_email table
+                        const newEmailQuery = `
+                            INSERT INTO guest_email (guest_id, email)
+                            VALUES (?, ?)
+                        `;
+                        db.query(newEmailQuery, [guestId, email], (newEmailErr) => {
+                            if (newEmailErr) {
+                                console.error('Error inserting email:', newEmailErr.message);
+                                return res.status(500).json({ error: 'Error inserting email' });
+                            }
+                            
+                            const newPhoneQuery = `
+                            INSERT INTO guest_phone (guest_id, phone_number)
+                            VALUES (?, ?)
+                        `;
+                        db.query(newPhoneQuery, [guestId, phone], (newPhoneErr) => {
+                            if (newPhoneErr) {
+                                console.error('Error inserting phone:', newPhoneErr.message);
+                                return res.status(500).json({ error: 'Error inserting phone' });
+                            }
+                            // Insert into the users table
+                            const newUserQuery = `
+                                INSERT INTO users (guest_id, password)
+                                VALUES (?, ?)
+                            `;
+                            db.query(newUserQuery, [guestId,hashedPassword], (newUserErr) => {
+                                if (newUserErr) {
+                                    console.error('Error creating user:', newUserErr.message);
+                                    return res.status(500).json({ error: 'Error creating user' });
+                                }
+                                res.json({ success: true, message: 'User and guest created successfully.' });
+                            });
+                        });
+                    });
+                });
+                });
+            }
+            
+        });
+    });
 
-app.post('/api/login', (req, res) => {
-    const { username, password } = req.body;
-
-    /*
-    const query = 'SELECT * FROM Users WHERE username = ?';
-    db.query(query, [username], async (err, results) => {
-        if (err) {
-            console.error('Error fetching user:', err.message);
-            return res.status(500).json({ error: 'Server error' });
+    app.post('/api/login', (req, res) => {
+        const { email, password } = req.body;
+        console.log(req.body);
+        // Validate input
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Email and password are required' });
         }
-
-        if (results.length === 0) {
-            return res.status(401).json({ error: 'Invalid username or password' });
-        }
-
-        const user = results[0];
-
-        // Compare password
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-            return res.status(401).json({ error: 'Invalid username or password' });
-        }
-
-        // Generate JWT
-        const token = jwt.sign({ userId: user.user_id, role: user.role }, SECRET_KEY, {
-            expiresIn: '1h',
+    
+        // Step 1: Check if the email exists in guest_email
+        const emailQuery = `SELECT guest_id FROM guest_email WHERE email = ?`;
+        db.query(emailQuery, [email], (emailErr, emailResults) => {
+            if (emailErr) {
+                console.error('Error checking email:', emailErr.message);
+                return res.status(500).json({ error: 'Internal server error' });
+            }
+    
+            if (emailResults.length === 0) {
+                // Email not found
+                return res.status(401).json({ error: 'Invalid email or password' });
+            }
+    
+            const guestId = emailResults[0].guest_id;
+    
+            // Step 2: Fetch user by guest_id from users table
+            const userQuery = `SELECT * FROM users WHERE guest_id = ?`;
+            db.query(userQuery, [guestId], async (userErr, userResults) => {
+                if (userErr) {
+                    console.error('Error fetching user:', userErr.message);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
+    
+                if (userResults.length === 0) {
+                    // No user found for this guest_id
+                    return res.status(401).json({ error: 'Invalid email or password' });
+                }
+    
+                const user = userResults[0];
+                console.log(user);
+    
+                // Step 3: Compare the provided password with the hashed password
+                const isPasswordValid = await bcrypt.compare(password, user.password);
+                if (!isPasswordValid) {
+                    return res.status(401).json({ error: 'Invalid email or password' });
+                }
+    
+                // Step 4: Generate JWT token
+                const token = jwt.sign(
+                    { userId: user.user_id, guestId: guestId, role: user.role },
+                    SECRET_KEY,
+                    { expiresIn: '1h' }
+                );
+    
+                // Step 5: Set cookie with the token
+                res.cookie('authToken', token, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+                    sameSite: 'strict',
+                });
+    
+                // Respond with success and user role
+                res.json({ success: true, message: 'Login successful', role: user.role });
+            });
         });
 
-        // Set cookie
-        res.cookie('authToken', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-            sameSite: 'strict',
-        });
+    });
 
-        res.json({ role: user.role });
-    });*/
-    if (username === 'admin' && password === 'admin') {
+
+
+
+
+
+
+
+
+ /*   if (email === 'admin' && password === 'admin') {
         // Generate JWT
         const token = jwt.sign({ userId: 'admin', role: 'admin' }, SECRET_KEY, {
             expiresIn: '1h',
@@ -115,10 +272,11 @@ app.post('/api/login', (req, res) => {
         res.json({ role: 'user' });
     }
 });
-
+*/
 
 
 app.get('/api/protected', verifyToken, (req, res) => {
+    console.log('Role:', req.role);
     res.json({ role: req.role });
 });
 
@@ -378,25 +536,6 @@ app.delete('/api/guests/:id', verifyToken, (req, res) => {
     if (req.role === 'admin') {
         //const { id } = req.params;
         const id = req.body['guest_id'];
-
-        // Delete emails and phones first
-        const deleteEmailsQuery = `DELETE FROM guest_email 
-        WHERE guest_id = ? AND EXISTS (
-          SELECT 1 FROM guest_email WHERE guest_id = ?
-        );`;
-        const deletePhonesQuery = `DELETE FROM guest_phone 
-        WHERE guest_id = ? AND EXISTS (
-        SELECT 1 FROM guest_phone WHERE guest_id = ?
-        );`;
-
-        db.query(deleteEmailsQuery, [id], (emailErr) => {
-            if (emailErr) console.error('Error deleting emails:', emailErr.message);
-        });
-
-        db.query(deletePhonesQuery, [id], (phoneErr) => {
-            if (phoneErr) console.error('Error deleting phones:', phoneErr.message);
-        });
-
         // Delete guest
         const deleteGuestQuery = `DELETE FROM guest WHERE guest_id = ?`;
         db.query(deleteGuestQuery, [id], (err) => {
