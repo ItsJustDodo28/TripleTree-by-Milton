@@ -675,7 +675,40 @@ app.delete('/api/employees/:id', verifyToken, (req, res) => {
 
 
 
-
+// Fetch all rooms
+app.get('/api/ROOM', (req, res) => {
+    const query = `
+        SELECT 
+        r.room_id,
+        r.rates,
+        rt.type_id,
+        rt.name AS type_name,
+        rt.description,
+        rt.image,
+        rt.features,
+        r.hotel_id,
+        COUNT(r.room_id) AS available_rooms
+    FROM 
+        room_type rt
+    LEFT JOIN 
+        room r ON rt.type_id = r.type_id
+    WHERE 
+        r.status = 'Available' -- Assuming 'available' is the status for rooms that are free
+    GROUP BY 
+        rt.type_id, r.hotel_id, r.rates;
+        `;
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching rooms:', err.message);
+            res.status(500).json({ error: 'Error fetching rooms.' });
+        } else {
+            results.forEach(result => {
+                result.features = result.features.split(',').map(email => email.trim());
+            });
+            res.json(results);
+        }
+    });
+});
 
 
 // Fetch all rooms
