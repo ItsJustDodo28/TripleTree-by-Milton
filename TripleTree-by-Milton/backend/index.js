@@ -36,7 +36,7 @@ const verifyToken = (req, res, next) => {
 
         req.userId = decoded.userId;
         req.role = decoded.role;
-        console.log('Decoded:' , decoded.role);
+        console.log('Decoded:', decoded.role);
         next();
     });
 };
@@ -45,7 +45,7 @@ const verifyToken = (req, res, next) => {
 
 //////////////////////////////////// login //////////////////////////////////////
 app.post('/api/register', (req, res) => {
-    const {firstname, lastname, email, password, address, phone} = req.body;
+    const { firstname, lastname, email, password, address, phone } = req.body;
     console.log(req.body);
     console.log(SEED);
     // Validate input
@@ -53,42 +53,42 @@ app.post('/api/register', (req, res) => {
         return res.status(400).json({ error: 'All fields are required' });
     }
 
-        // Insert the user into the database
-        const emailQuery = `SELECT guest_id FROM guest_email WHERE email = ?`;
-        db.query(emailQuery, [email], (emailErr, emailResults) => {
-            if (emailErr) {
-                console.error('Error checking email:', emailErr.message);
-                return res.status(500).json({ error: 'Internal server error' });
-            }
-    
-            if (emailResults.length > 0) {
-                // Email exists, fetch the guest_id
-                const guestId = emailResults[0].guest_id;
-    
-                // Check if a user is already linked to this guest_id
-                const userQuery = `SELECT * FROM users WHERE guest_id = ?`;
-                db.query(userQuery, [guestId], async (userErr, userResults) => {
-                    if (userErr) {
-                        console.error('Error checking user:', userErr.message);
-                        return res.status(500).json({ error: 'Internal server error' });
-                    }
-    
-                    if (userResults.length > 0) {
-                        // User already exists
-                        return res.status(400).json({ error: 'A user is already linked to this email.' });
-                    } else {
-                        // Create a new user linked to the existing guest
-                        const hashedPassword = await bcrypt.hash(password, SEED);
-                        const newUserQuery = `
+    // Insert the user into the database
+    const emailQuery = `SELECT guest_id FROM guest_email WHERE email = ?`;
+    db.query(emailQuery, [email], (emailErr, emailResults) => {
+        if (emailErr) {
+            console.error('Error checking email:', emailErr.message);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        if (emailResults.length > 0) {
+            // Email exists, fetch the guest_id
+            const guestId = emailResults[0].guest_id;
+
+            // Check if a user is already linked to this guest_id
+            const userQuery = `SELECT * FROM users WHERE guest_id = ?`;
+            db.query(userQuery, [guestId], async (userErr, userResults) => {
+                if (userErr) {
+                    console.error('Error checking user:', userErr.message);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
+
+                if (userResults.length > 0) {
+                    // User already exists
+                    return res.status(400).json({ error: 'A user is already linked to this email.' });
+                } else {
+                    // Create a new user linked to the existing guest
+                    const hashedPassword = await bcrypt.hash(password, SEED);
+                    const newUserQuery = `
                             INSERT INTO users (guest_id, password)
                             VALUES (?, ?)
                         `;
-                        db.query(newUserQuery, [guestId, hashedPassword], (newUserErr) => {
-                            if (newUserErr) {
-                                console.error('Error creating user:', newUserErr.message);
-                                return res.status(500).json({ error: 'Error creating user' });
-                            } 
-                            const newPhoneQuery = `
+                    db.query(newUserQuery, [guestId, hashedPassword], (newUserErr) => {
+                        if (newUserErr) {
+                            console.error('Error creating user:', newUserErr.message);
+                            return res.status(500).json({ error: 'Error creating user' });
+                        }
+                        const newPhoneQuery = `
                             INSERT INTO guest_phone (guest_id, phone_number)
                             VALUES (?, ?)
                         `;
@@ -98,44 +98,44 @@ app.post('/api/register', (req, res) => {
                                 return res.status(500).json({ error: 'Error inserting phone' });
                             }
                             res.json({ success: true, message: 'User registered successfully and linked to existing guest.' });
-                        }); 
                         });
-                        
-                    }
-                });
-            } else {
-                // Email not found, create a new guest
-                bcrypt.hash(password, SEED, (hashErr, hashedPassword) => {
-                    if (hashErr) {
-                        console.error('Error hashing password:', hashErr.message);
-                        return res.status(500).json({ error: 'Internal server error' });
-                    }
-    
-                    // Insert into the guest table
-                    const guestQuery = `
+                    });
+
+                }
+            });
+        } else {
+            // Email not found, create a new guest
+            bcrypt.hash(password, SEED, (hashErr, hashedPassword) => {
+                if (hashErr) {
+                    console.error('Error hashing password:', hashErr.message);
+                    return res.status(500).json({ error: 'Internal server error' });
+                }
+
+                // Insert into the guest table
+                const guestQuery = `
                         INSERT INTO guest (first_name, last_name)
                         VALUES (?, ?)
                     `;
-                    db.query(guestQuery, [firstname, lastname], (guestErr, guestResult) => {
-                        if (guestErr) {
-                            console.error('Error inserting guest:', guestErr.message);
-                            return res.status(500).json({ error: 'Error inserting guest' });
-                        }
-    
-                        const guestId = guestResult.insertId;
-    
-                        // Insert email into the guest_email table
-                        const newEmailQuery = `
+                db.query(guestQuery, [firstname, lastname], (guestErr, guestResult) => {
+                    if (guestErr) {
+                        console.error('Error inserting guest:', guestErr.message);
+                        return res.status(500).json({ error: 'Error inserting guest' });
+                    }
+
+                    const guestId = guestResult.insertId;
+
+                    // Insert email into the guest_email table
+                    const newEmailQuery = `
                             INSERT INTO guest_email (guest_id, email)
                             VALUES (?, ?)
                         `;
-                        db.query(newEmailQuery, [guestId, email], (newEmailErr) => {
-                            if (newEmailErr) {
-                                console.error('Error inserting email:', newEmailErr.message);
-                                return res.status(500).json({ error: 'Error inserting email' });
-                            }
-                            
-                            const newPhoneQuery = `
+                    db.query(newEmailQuery, [guestId, email], (newEmailErr) => {
+                        if (newEmailErr) {
+                            console.error('Error inserting email:', newEmailErr.message);
+                            return res.status(500).json({ error: 'Error inserting email' });
+                        }
+
+                        const newPhoneQuery = `
                             INSERT INTO guest_phone (guest_id, phone_number)
                             VALUES (?, ?)
                         `;
@@ -149,7 +149,7 @@ app.post('/api/register', (req, res) => {
                                 INSERT INTO users (guest_id, password)
                                 VALUES (?, ?)
                             `;
-                            db.query(newUserQuery, [guestId,hashedPassword], (newUserErr) => {
+                            db.query(newUserQuery, [guestId, hashedPassword], (newUserErr) => {
                                 if (newUserErr) {
                                     console.error('Error creating user:', newUserErr.message);
                                     return res.status(500).json({ error: 'Error creating user' });
@@ -159,78 +159,77 @@ app.post('/api/register', (req, res) => {
                         });
                     });
                 });
-                });
-            }
-            
-        });
-    });
-
-    app.post('/api/login', (req, res) => {
-        const { email, password } = req.body;
-        console.log(req.body);
-        // Validate input
-        if (!email || !password) {
-            return res.status(400).json({ error: 'Email and password are required' });
+            });
         }
-    
-        // Step 1: Check if the email exists in guest_email
-        const emailQuery = `SELECT guest_id FROM guest_email WHERE email = ?`;
-        db.query(emailQuery, [email], (emailErr, emailResults) => {
-            if (emailErr) {
-                console.error('Error checking email:', emailErr.message);
+
+    });
+});
+
+app.post('/api/login', (req, res) => {
+    const { email, password } = req.body;
+    console.log(req.body);
+    // Validate input
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    // Step 1: Check if the email exists in guest_email
+    const emailQuery = `SELECT guest_id FROM guest_email WHERE email = ?`;
+    db.query(emailQuery, [email], (emailErr, emailResults) => {
+        if (emailErr) {
+            console.error('Error checking email:', emailErr.message);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        if (emailResults.length === 0) {
+            // Email not found
+            return res.status(401).json({ error: 'Invalid email or password' });
+        }
+
+        const guestId = emailResults[0].guest_id;
+
+        // Step 2: Fetch user by guest_id from users table
+        const userQuery = `SELECT * FROM users WHERE guest_id = ?`;
+        db.query(userQuery, [guestId], async (userErr, userResults) => {
+            if (userErr) {
+                console.error('Error fetching user:', userErr.message);
                 return res.status(500).json({ error: 'Internal server error' });
             }
-    
-            if (emailResults.length === 0) {
-                // Email not found
+
+            if (userResults.length === 0) {
+                // No user found for this guest_id
                 return res.status(401).json({ error: 'Invalid email or password' });
             }
-    
-            const guestId = emailResults[0].guest_id;
-    
-            // Step 2: Fetch user by guest_id from users table
-            const userQuery = `SELECT * FROM users WHERE guest_id = ?`;
-            db.query(userQuery, [guestId], async (userErr, userResults) => {
-                if (userErr) {
-                    console.error('Error fetching user:', userErr.message);
-                    return res.status(500).json({ error: 'Internal server error' });
-                }
-    
-                if (userResults.length === 0) {
-                    // No user found for this guest_id
-                    return res.status(401).json({ error: 'Invalid email or password' });
-                }
-    
-                const user = userResults[0];
-                console.log(user);
-    
-                // Step 3: Compare the provided password with the hashed password
-                const isPasswordValid = await bcrypt.compare(password, user.password);
-                if (!isPasswordValid) {
-                    return res.status(401).json({ error: 'Invalid email or password' });
-                }
-    
-                // Step 4: Generate JWT token
-                const token = jwt.sign(
-                    { userId: user.user_id, guestId: guestId, role: user.role },
-                    SECRET_KEY,
-                    { expiresIn: '1h' }
-                );
-    
-                // Step 5: Set cookie with the token
-                res.cookie('authToken', token, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-                    sameSite: 'strict',
-                });
-    
-                // Respond with success and user role
-                res.json({ success: true, message: 'Login successful', role: user.role });
-            });
-        });
 
+            const user = userResults[0];
+            console.log(user);
+
+            // Step 3: Compare the provided password with the hashed password
+            const isPasswordValid = await bcrypt.compare(password, user.password);
+            if (!isPasswordValid) {
+                return res.status(401).json({ error: 'Invalid email or password' });
+            }
+
+            // Step 4: Generate JWT token
+            const token = jwt.sign(
+                { userId: user.user_id, guestId: guestId, role: user.role },
+                SECRET_KEY,
+                { expiresIn: '1h' }
+            );
+
+            // Step 5: Set cookie with the token
+            res.cookie('authToken', token, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+                sameSite: 'strict',
+            });
+
+            // Respond with success and user role
+            res.json({ success: true, message: 'Login successful', role: user.role });
+        });
     });
 
+});
 
 
 
@@ -239,38 +238,39 @@ app.post('/api/register', (req, res) => {
 
 
 
- /*   if (email === 'admin' && password === 'admin') {
-        // Generate JWT
-        const token = jwt.sign({ userId: 'admin', role: 'admin' }, SECRET_KEY, {
-            expiresIn: '1h',
-        });
 
-        console.log(token);
+/*   if (email === 'admin' && password === 'admin') {
+       // Generate JWT
+       const token = jwt.sign({ userId: 'admin', role: 'admin' }, SECRET_KEY, {
+           expiresIn: '1h',
+       });
 
-        // Set cookie
-        res.cookie('authToken', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-            sameSite: 'strict',
-        });
+       console.log(token);
 
-        res.json({ role: 'admin' });
-    } else {
-        // Generate JWT
-        const token = jwt.sign({ userId: 'user', role: 'user' }, SECRET_KEY, {
-            expiresIn: '1h',
-        });
-        console.log(token);
+       // Set cookie
+       res.cookie('authToken', token, {
+           httpOnly: true,
+           secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+           sameSite: 'strict',
+       });
 
-        // Set cookie
-        res.cookie('authToken', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-            sameSite: 'strict',
-        });
+       res.json({ role: 'admin' });
+   } else {
+       // Generate JWT
+       const token = jwt.sign({ userId: 'user', role: 'user' }, SECRET_KEY, {
+           expiresIn: '1h',
+       });
+       console.log(token);
 
-        res.json({ role: 'user' });
-    }
+       // Set cookie
+       res.cookie('authToken', token, {
+           httpOnly: true,
+           secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+           sameSite: 'strict',
+       });
+
+       res.json({ role: 'user' });
+   }
 });
 */
 
@@ -307,6 +307,51 @@ const handleLogout = async () => {
 app.get('/api', (req, res) => {
     res.send('Welcome to the TripleTree API!');
 });
+
+
+app.get('/api/rooms', verifyToken, (req, res) => {
+    const { location, hotel, roomType, startDate, endDate } = req.query;
+
+    /*   // SQL Query to fetch available room types
+       const query = `
+           SELECT DISTINCT r.room_type, r.rates, h.hotel_name, h.location 
+           FROM Room r
+           JOIN Hotel h ON r.hotel_id = h.hotel_id
+           LEFT JOIN Booking b ON r.room_id = b.room_id AND 
+               ((b.check_in_date BETWEEN ? AND ?) OR 
+                (b.check_out_date BETWEEN ? AND ?) OR 
+                (? BETWEEN b.check_in_date AND b.check_out_date))
+           WHERE b.booking_id IS NULL
+           ${location ? 'AND h.location = ?' : ''}
+           ${hotel ? 'AND h.hotel_name = ?' : ''}
+           ${roomType ? 'AND r.room_type = ?' : ''}
+       `;
+   
+       const params = [startDate, endDate, startDate, endDate, startDate];
+       if (location) params.push(location);
+       if (hotel) params.push(hotel);
+       if (roomType) params.push(roomType);
+   
+       db.query(query, params, (err, results) => {
+           if (err) {
+               console.error('Error fetching rooms:', err.message);
+               return res.status(500).json({ error: 'Error fetching rooms.' });
+           }
+           res.json(results);
+       });
+   */
+    const query = "SELECT * FROM room";
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching rooms:', err.message);
+            return res.status(500).json({ error: 'Error fetching rooms.' });
+        }
+        res.json(results);
+    });
+});
+
+
+
 
 // Fetch all reservations
 app.get('/api/reservations', verifyToken, (req, res) => {

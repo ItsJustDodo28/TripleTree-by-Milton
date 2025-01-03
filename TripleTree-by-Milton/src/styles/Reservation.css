@@ -15,8 +15,8 @@
     letter-spacing: 0.1rem;
 }
 
-.reservation-back{
-    position:relative;
+.reservation-back {
+    position: relative;
     margin: 2em;
     left: -45%;
 }
@@ -34,11 +34,13 @@
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
     /*transition: all 0.3s ease;*/
-    flex: 1; /* Allow grid to shrink when details are shown */
+    flex: 1;
+    /* Allow grid to shrink when details are shown */
 }
 
 .reservation-room-grid.shift-left {
-    flex: 0.6; /* Shrinks the grid to allow space for details */
+    flex: 0.6;
+    /* Shrinks the grid to allow space for details */
 }
 
 .reservation-room-card {
@@ -88,12 +90,12 @@
     border-radius: 10px;
     padding: 20px;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-    flex: 0.4; 
+    flex: 0.4;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    position: sticky; 
+    position: sticky;
     top: 20px;
     overflow-y: auto;
 }
@@ -128,6 +130,7 @@
     background: #6d5c27;
     transform: scale(1.05);
 }
+
 @media (max-width: 768px) {
     .reservation-content {
         flex-direction: column;
