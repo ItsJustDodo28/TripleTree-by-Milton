@@ -36,9 +36,9 @@ function Register() {
     const payload = {
       firstname: firstName,
       lastname: lastName,
-      email,
-      password,
-      address,
+      email: email,
+      password: password,
+      address: address,
       phone: phoneNumber,
     };
 

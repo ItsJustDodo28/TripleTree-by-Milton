@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import "../styles/AdminDashboard.css";
 import Modal from "../components/DashboardModal";
 import Analytics from "../components/Analytics";
+import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
   const [activeSection, setActiveSection] = useState("reservations");
@@ -9,7 +10,7 @@ const AdminDashboard = () => {
   const [data, setData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalData, setModalData] = useState(null); // For editing or creating entries
-
+  const navigate = useNavigate();
   // Fetch data dynamically based on the active section
   useEffect(() => {
     const fetchData = async () => {
@@ -47,6 +48,14 @@ const AdminDashboard = () => {
   const closeModal = () => {
     setModalData(null);
     setIsModalOpen(false);
+  };
+
+  const handleLogout = async () => {
+    await fetch('http://localhost:5000/api/logout', {
+      method: 'POST',
+      credentials: 'include',
+    });
+    navigate('/');
   };
 
   // Handle form submission inside modal
@@ -106,6 +115,10 @@ const AdminDashboard = () => {
               </li>
             )
           )}
+          <li onClick={() => handleLogout()}
+            className={`admin-dashboard-sidebar-item`}>
+            Logout
+          </li>
         </ul>
       </aside>
 
