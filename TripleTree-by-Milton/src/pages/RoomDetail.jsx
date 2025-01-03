@@ -2,24 +2,15 @@ import { useParams } from "react-router-dom";
 import "../styles/RoomDetail.css";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-//import { Link } from "react-router-dom";
 
-const rooms = [
-    { id: 1, name: "Single Room", description: "A budget-friendly room designed for one guest. Features include a single bed, a desk, free Wi-Fi, and basic amenities. Perfect for solo travelers or business trips.", basePrice: 60, image: "/single.jpg", features: ["Free WiFi", "Air Conditioning", "Room Service"] },
-    { id: 2, name: "Double Room", description: "A comfortable room suitable for two guests. It comes with one double bed, a private bathroom, and standard amenities", basePrice: 100, image: "/double.jpg", features: ["Free WiFi", "Air Conditioning", "Room Service", "Free Breakfast", "Flat-Screen TV", "Mini Fridge"] },
-    { id: 3, name: "Twin Room", description: "A room equipped with two single beds, ideal for friends or colleagues traveling together. Includes amenities", basePrice: 150, image: "/twin.jpg", features: ["Free WiFi", "Air Conditioning", "Room Service", "Free Breakfast", "Flat-Screen TV", "Mini Fridge"] },
-    { id: 4, name: "King Room", description: "A luxurious room featuring a king-size bed, plush bedding, a seating area, and modern amenities. Ideal for couples or guests seeking extra space and comfort.", basePrice: 300, image: "/king.jpg", features: ["Free WiFi", "Air Conditioning", "Room Service", "Free In-Room Dining", "Seating Area"] },
-    { id: 5, name: "Queen Room", description: "A cozy room with a queen-size bed, suitable for couples or solo travelers who prefer a larger bed. Includes amenities", basePrice: 450, image: "/queen.jpg", features: ["Free WiFi", "Air Conditioning", "Room Service", "Free In-Room Dining", "private Balacony", "Luxury Bathroom"] },
-    { id: 6, name: "Suite", description: "A premium accommodation with a separate living area, luxurious furnishings, and exclusive amenities. Suites often include a king or queen bed, a kitchenette, and panoramic views.", basePrice: 700, image: "/suite.jpg", features: ["Free WiFi", "Air Conditioning", "Room Service", "Free In-Room Dining", "Living Area", "Private Balcony", "Luxury Bathroom", "Small Kitchen"] },
-];
 
 const RoomDetail = (props) => {
-    const room = rooms.find((room) => room.id === parseInt(props.room.id));
+    const room = props.room;
 
 
     //const navigate = useNavigate();
     const [selectedOption, setSelectedOption] = useState("plain");
-    const [price, setPrice] = useState(room.basePrice);
+    const [price, setPrice] = useState(room.rates);
     const [showPopup, setShowPopup] = useState(false);
     const [addons, setAddons] = useState([]);
 
@@ -27,19 +18,19 @@ const RoomDetail = (props) => {
         setSelectedOption(option);
         switch (option) {
             case "plain":
-                setPrice(room.basePrice);
+                setPrice(room.rates);
                 break;
             case "breakfast":
-                setPrice(room.basePrice * 1.1); // Adds 10% for breakfast
+                setPrice(room.rates * 1.1); // Adds 10% for breakfast
                 break;
             case "ocean-view":
-                setPrice(room.basePrice * 1.1); // Adds 10% for ocean view
+                setPrice(room.rates * 1.1); // Adds 10% for ocean view
                 break;
             case "breakfast-ocean-view":
-                setPrice(room.basePrice * 1.15); // Adds 15% for both
+                setPrice(room.rates * 1.15); // Adds 15% for both
                 break;
             default:
-                setPrice(room.basePrice);
+                setPrice(room.rates);
         }
     };
     const toggleAddon = (addon) => {
@@ -88,7 +79,7 @@ const RoomDetail = (props) => {
             <h1>{room.name}</h1>
             <img src={room.image} alt={room.name} className="room-image-detail" />
             <p>{room.description}</p>
-            <p className="room-price">Price: ${price.toFixed(2)} / night</p>
+            {/*<p className="room-price">Price: ${price.toFixed(2)} / night</p>*/}
             <ul className="features-list">
                 {room.features.map((feature, index) => (
                     <li key={index}>{feature}</li>
@@ -103,7 +94,7 @@ const RoomDetail = (props) => {
                         className={selectedOption === "plain" ? "active" : ""}
                         onClick={() => handleOptionChange("plain")}
                     >
-                        Plain Room (${room.basePrice})
+                        Plain Room (${room.rates})
                     </button>
                     <button
                         className={selectedOption === "breakfast" ? "active" : ""}
