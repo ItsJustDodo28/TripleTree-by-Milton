@@ -82,7 +82,7 @@ app.post('/api/register', (req, res) => {
                     INSERT INTO users (guest_id, password, loyalty_points, membership_level)
                     VALUES (?, ?, 0, 'Bronze')
                 `;
-                
+
                     db.query(newUserQuery, [guestId, hashedPassword], (newUserErr) => {
                         if (newUserErr) {
                             console.error('Error creating user:', newUserErr.message);
@@ -149,7 +149,7 @@ app.post('/api/register', (req, res) => {
                             INSERT INTO users (guest_id, password, loyalty_points, membership_level)
                             VALUES (?, ?, 0, 'Bronze')
                             `;
-                        
+
                             db.query(newUserQuery, [guestId, hashedPassword], (newUserErr) => {
                                 if (newUserErr) {
                                     console.error('Error creating user:', newUserErr.message);
@@ -968,11 +968,15 @@ app.get('/api/ROOM', (req, res) => {
         rt.image,
         rt.features,
         r.hotel_id,
-        COUNT(r.room_id) AS available_rooms
+        COUNT(r.room_id) AS available_rooms,
+        h.name AS hotel,
+        h.address as address
     FROM 
         room_type rt
     LEFT JOIN 
         room r ON rt.type_id = r.type_id
+    LEFT JOIN
+        hotel h ON r.hotel_id = h.hotel_id
     WHERE 
         r.status = 'Available' -- Assuming 'available' is the status for rooms that are free
     GROUP BY 

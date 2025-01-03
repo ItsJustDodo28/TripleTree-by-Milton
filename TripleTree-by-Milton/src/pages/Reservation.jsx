@@ -128,7 +128,9 @@ const ResPage = (props) => {
                             <div className="reservation-room-details">
                                 <h2>{room.name}</h2>
                                 <p>{room.description}</p>
-                                <p className="reservation-price">{room.price}</p>
+                                <p className="reservation-price">{room.rates}</p>
+                                <p>{room.hotel}</p>
+                                <p>{room.address}</p>
                             </div>
                         </div>
                     ))}
