@@ -16,6 +16,7 @@ const DashboardModal = ({ section, data, onClose, onSubmit }) => {
       status: "Pending",
     },
     guests: {
+      guest_id: "",
       first_name: "",
       last_name: "",
       email: "",
@@ -88,8 +89,8 @@ const DashboardModal = ({ section, data, onClose, onSubmit }) => {
                   key.includes("date")
                     ? "date"
                     : key.includes("price") || key.includes("id") || key.includes("price")
-                    ? "number"
-                    : "text"
+                      ? "number"
+                      : "text"
                 }
                 id={key}
                 name={key}

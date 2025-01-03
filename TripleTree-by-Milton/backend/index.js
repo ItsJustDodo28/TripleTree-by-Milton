@@ -1,5 +1,5 @@
-const express = require('express'); 
-const cors = require('cors'); 
+const express = require('express');
+const cors = require('cors');
 const db = require('./database'); // Import the database connection
 const path = require('path');
 const cookieParser = require('cookie-parser');
@@ -153,162 +153,81 @@ app.get('/api', (req, res) => {
 // Fetch all reservations
 app.get('/api/reservations', verifyToken, (req, res) => {
     if (req.role === 'admin') {
-    const query = 'SELECT * FROM Booking';
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error('Error fetching reservations:', err.message);
-            res.status(500).json({ error: 'Error fetching reservations.' });
-        } else {
-            const formattedResults = results.map((item) => ({
-                ...item,
-                check_in_date: item.check_in_date.toISOString().split('T')[0],
-                check_out_date: item.check_out_date.toISOString().split('T')[0],
-              }));
-              res.json(formattedResults);
-        }
-    });}
+        const query = 'SELECT * FROM Booking';
+        db.query(query, (err, results) => {
+            if (err) {
+                console.error('Error fetching reservations:', err.message);
+                res.status(500).json({ error: 'Error fetching reservations.' });
+            } else {
+                const formattedResults = results.map((item) => ({
+                    ...item,
+                    check_in_date: item.check_in_date.toISOString().split('T')[0],
+                    check_out_date: item.check_out_date.toISOString().split('T')[0],
+                }));
+                res.json(formattedResults);
+            }
+        });
+    }
 });
 
 // Add a new reservation
 app.post('/api/reservations', verifyToken, (req, res) => {
     if (req.role === 'admin') {
-    const { room_id, check_in_date, check_out_date, total_price, status } = req.body;
-    const query = `
+        const { room_id, check_in_date, check_out_date, total_price, status } = req.body;
+        const query = `
         INSERT INTO Booking (room_id, check_in_date, check_out_date, total_price, status)
         VALUES (?, ?, ?, ?, ?)
     `;
-    db.query(query, [room_id, check_in_date, check_out_date, total_price, status], (err, results) => {
-        if (err) {
-            console.error('Error adding reservation:', err.message);
-            res.status(500).json({ error: 'Error adding reservation.' });
-        } else {
-            res.json({ success: true, bookingId: results.insertId });
-        }
-    });}
+        db.query(query, [room_id, check_in_date, check_out_date, total_price, status], (err, results) => {
+            if (err) {
+                console.error('Error adding reservation:', err.message);
+                res.status(500).json({ error: 'Error adding reservation.' });
+            } else {
+                res.json({ success: true, bookingId: results.insertId });
+            }
+        });
+    }
 });
 
 // Update an existing reservation
 app.put('/api/reservations/:id', verifyToken, (req, res) => {
     if (req.role === 'admin') {
-    //const { id } = req.params;
-    var {booking_id, room_id, check_in_date, check_out_date, total_price, status } = req.body;
-    total_price = parseFloat(total_price);
-    const query = `
+        //const { id } = req.params;
+        var { booking_id, room_id, check_in_date, check_out_date, total_price, status } = req.body;
+        total_price = parseFloat(total_price);
+        const query = `
         UPDATE Booking
         SET room_id = ?, check_in_date = ?, check_out_date = ?, total_price = ?, \`status\` = ?
         WHERE booking_id = ?
     `;
-    db.query(query, [room_id, check_in_date, check_out_date, total_price, status, booking_id], (err, results) => {
-        if (err) {
-            console.error('Error updating reservation:', err.message);
-            res.status(500).json({ error: 'Error updating reservation.' });
-        } else {
-            res.json({ success: true });
-        }
-    });}
+        db.query(query, [room_id, check_in_date, check_out_date, total_price, status, booking_id], (err, results) => {
+            if (err) {
+                console.error('Error updating reservation:', err.message);
+                res.status(500).json({ error: 'Error updating reservation.' });
+            } else {
+                res.json({ success: true });
+            }
+        });
+    }
 });
 
 // Delete a reservation
 app.delete('/api/reservations/:id', verifyToken, (req, res) => {
     if (req.role === 'admin') {
-    const id = req.body['booking_id'];
-    const query = 'DELETE FROM Booking WHERE booking_id = ?';
-    db.query(query, [id], (err, results) => {
-        if (err) {
-            console.error('Error deleting reservation:', err.message);
-            res.status(500).json({ error: 'Error deleting reservation.' });
-            console.log(id);
-        } else {
-            res.json({ success: true });
-            console.log(id);
-        }
-    });}
+        const id = req.body['booking_id'];
+        const query = 'DELETE FROM Booking WHERE booking_id = ?';
+        db.query(query, [id], (err, results) => {
+            if (err) {
+                console.error('Error deleting reservation:', err.message);
+                res.status(500).json({ error: 'Error deleting reservation.' });
+                console.log(id);
+            } else {
+                res.json({ success: true });
+                console.log(id);
+            }
+        });
+    }
 });
-
-
-
-
-
-
-
-
-
-// Fetch all guests
-app.get('/api/guests', verifyToken, (req, res) => {
-    if (req.role === 'admin') {
-    const query = `SELECT * FROM Guest`;
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error('Error fetching guests:', err.message);
-            res.status(500).json({ error: 'Error fetching guests.' });
-        } else {
-            res.json(results);
-        }
-    });}
-});
-
-// Add a new guest
-app.post('/api/guests', verifyToken, (req, res) => {
-    if (req.role === 'admin') {
-    const { guest_id, first_name, last_name} = req.body;
-    const query = `
-        INSERT INTO guest (guest_id, first_name, last_name)
-        VALUES (?, ?, ?)
-    `;
-    db.query(query, [guest_id, first_name, last_name], (err, results) => {
-        if (err) {
-            console.error('Error adding guest:', err.message);
-            res.status(500).json({ error: 'Error adding guest.' });
-        } else {
-            res.json({ success: true, guest_id: results.insertId });
-        }
-    });}
-});
-
-// Update an existing guest
-app.put('/api/guests/:id', verifyToken, (req, res) => {
-    if (req.role === 'admin') {
-    //const { id } = req.params;
-    const { guest_id, first_name, last_name} = req.body;
-    const query = `
-        UPDATE guest
-        SET first_name = ?, last_name = ?
-        WHERE guest_id = ?
-    `;
-    db.query(query, [first_name, last_name, guest_id], (err, results) => {
-        if (err) {
-            console.error('Error updating guest:', err.message);
-            res.status(500).json({ error: 'Error updating guest.' });
-        } else {
-            res.json({ success: true });
-        }
-    });}
-});
-
-// Delete a guest
-app.delete('/api/guests/:id', verifyToken, (req, res) => {
-    if (req.role === 'admin') {
-    const id = req.body['guest_id'];
-    const query = 'DELETE FROM guest WHERE guest_id = ?';
-    db.query(query, [id], (err, results) => {
-        if (err) {
-            console.error('Error deleting guest:', err.message);
-            res.status(500).json({ error: 'Error deleting guest.' });
-            console.log(id);
-        } else {
-            res.json({ success: true });
-            console.log(id);
-        }
-    });}
-});
-
-
-
-
-
-
-/*
-
 
 
 // Fetch all guests
@@ -399,7 +318,7 @@ app.post('/api/guests', verifyToken, (req, res) => {
 app.put('/api/guests/:id', verifyToken, (req, res) => {
     if (req.role === 'admin') {
         //const { id } = req.params;
-        const { id, first_name, last_name, emails, phones } = req.body;
+        const { guest_id, first_name, last_name, emails, phones } = req.body;
 
         const updateGuestQuery = `
             UPDATE guest
@@ -407,7 +326,7 @@ app.put('/api/guests/:id', verifyToken, (req, res) => {
             WHERE guest_id = ?
         `;
 
-        db.query(updateGuestQuery, [first_name, last_name, id], (err) => {
+        db.query(updateGuestQuery, [first_name, last_name, guest_id], (err) => {
             if (err) {
                 console.error('Error updating guest:', err.message);
                 return res.status(500).json({ error: 'Error updating guest.' });
@@ -416,14 +335,18 @@ app.put('/api/guests/:id', verifyToken, (req, res) => {
             // Update emails
             const emailList = emails ? emails.split(',').map(email => email.trim()) : [];
             const deleteEmailsQuery = `DELETE FROM guest_email WHERE guest_id = ?`;
-            db.query(deleteEmailsQuery, [id], () => {
+            db.query(deleteEmailsQuery, [guest_id], (err) => {
+                if (err) {
+                    console.error('Error updating Email:', err.message);
+                    return;
+                }
                 emailList.forEach((email) => {
                     const emailQuery = `
                         INSERT INTO guest_email (guest_id, email)
                         VALUES (?, ?)
                     `;
-                    db.query(emailQuery, [id, email], (emailErr) => {
-                        if (emailErr) console.error('Error updating email:', emailErr.message);
+                    db.query(emailQuery, [guest_id, email], (emailErr) => {
+                        if (emailErr) console.error('Error updating Email:', emailErr.message);
                     });
                 });
             });
@@ -431,13 +354,13 @@ app.put('/api/guests/:id', verifyToken, (req, res) => {
             // Update phones
             const phoneList = phones ? phones.split(',').map(phone => phone.trim()) : [];
             const deletePhonesQuery = `DELETE FROM guest_phone WHERE guest_id = ?`;
-            db.query(deletePhonesQuery, [id], () => {
+            db.query(deletePhonesQuery, [guest_id], () => {
                 phoneList.forEach((phone) => {
                     const phoneQuery = `
                         INSERT INTO guest_phone (guest_id, phone_number)
                         VALUES (?, ?)
                     `;
-                    db.query(phoneQuery, [id, phone], (phoneErr) => {
+                    db.query(phoneQuery, [guest_id, phone], (phoneErr) => {
                         if (phoneErr) console.error('Error updating phone:', phoneErr.message);
                     });
                 });
@@ -457,8 +380,14 @@ app.delete('/api/guests/:id', verifyToken, (req, res) => {
         const id = req.body['guest_id'];
 
         // Delete emails and phones first
-        const deleteEmailsQuery = `DELETE FROM guest_email WHERE guest_id = ?`;
-        const deletePhonesQuery = `DELETE FROM guest_phone WHERE guest_id = ?`;
+        const deleteEmailsQuery = `DELETE FROM guest_email 
+        WHERE guest_id = ? AND EXISTS (
+          SELECT 1 FROM guest_email WHERE guest_id = ?
+        );`;
+        const deletePhonesQuery = `DELETE FROM guest_phone 
+        WHERE guest_id = ? AND EXISTS (
+        SELECT 1 FROM guest_phone WHERE guest_id = ?
+        );`;
 
         db.query(deleteEmailsQuery, [id], (emailErr) => {
             if (emailErr) console.error('Error deleting emails:', emailErr.message);
@@ -481,40 +410,8 @@ app.delete('/api/guests/:id', verifyToken, (req, res) => {
         res.status(403).json({ error: 'Unauthorized' });
     }
 });
-*/
 
-/*
-const deleteEmailsQuery = `DELETE FROM guest_email WHERE guest_id = ?`;
 
-db.query(deleteEmailsQuery, [id], (deleteErr) => {
-    if (deleteErr) {
-        console.error('Error deleting emails:', deleteErr.message);
-        return res.status(500).json({ error: 'Error deleting emails.' });
-    }
-
-    console.log('Deleted existing emails for guest_id:', id);
-
-    const emailList = emails ? emails.split(',').map(email => email.trim()) : [];
-
-    // Insert new emails
-    emailList.forEach((email) => {
-        const emailQuery = `
-            INSERT INTO guest_email (guest_id, email)
-            VALUES (?, ?)
-        `;
-        db.query(emailQuery, [id, email], (emailErr) => {
-            if (emailErr) {
-                console.error('Error inserting email:', emailErr.message);
-            } else {
-                console.log(`Inserted email: ${email} for guest_id: ${id}`);
-            }
-        });
-    });
-
-    // Respond only after emails are processed
-    res.json({ success: true });
-});
-*/
 
 
 
@@ -522,74 +419,75 @@ db.query(deleteEmailsQuery, [id], (deleteErr) => {
 // Fetch all employees
 app.get('/api/employees', verifyToken, (req, res) => {
     if (req.role === 'admin') {
-    const query = 'SELECT * FROM Employee';
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error('Error fetching employees:', err.message);
-            res.status(500).json({ error: 'Error fetching employees.' });
-        } else {
-            res.json(results);
-        }
-    });}
+        const query = 'SELECT * FROM Employee';
+        db.query(query, (err, results) => {
+            if (err) {
+                console.error('Error fetching employees:', err.message);
+                res.status(500).json({ error: 'Error fetching employees.' });
+            } else {
+                res.json(results);
+            }
+        });
+    }
 });
 
 // Add a new employee
 app.post('/api/employees', verifyToken, (req, res) => {
     if (req.role === 'admin') {
-    const { employee_id, hotel_id, first_name, last_name, position, salary, supervisor } = req.body;
-    const query = `
+        const { employee_id, hotel_id, first_name, last_name, position, salary, supervisor } = req.body;
+        const query = `
         INSERT INTO Employee (employee_id, hotel_id, first_name, last_name, position, salary, supervisor)
         VALUES (?, ?, ?, ?, ?, ?, ?)
     `;
-    db.query(query, [employee_id, hotel_id, first_name, last_name, position, salary, supervisor], (err, results) => {
-        if (err) {
-            console.error('Error adding employee:', err.message);
-            res.status(500).json({ error: 'Error adding employee.' });
-        } else {
-            res.json({ success: true, employee_id: results.insertId });
-        }
-    });}
+        db.query(query, [employee_id, hotel_id, first_name, last_name, position, salary, supervisor], (err, results) => {
+            if (err) {
+                console.error('Error adding employee:', err.message);
+                res.status(500).json({ error: 'Error adding employee.' });
+            } else {
+                res.json({ success: true, employee_id: results.insertId });
+            }
+        });
+    }
 });
 
 // Update an existing employee
 app.put('/api/employees/:id', verifyToken, (req, res) => {
     if (req.role === 'admin') {
-    //const { id } = req.params;
-    var {employee_id, hotel_id, first_name, last_name, position, salary, supervisor } = req.body;
-    const query = `
+        //const { id } = req.params;
+        var { employee_id, hotel_id, first_name, last_name, position, salary, supervisor } = req.body;
+        const query = `
         UPDATE Employee
         SET hotel_id = ?, first_name = ?, last_name = ?, position = ?, salary = ?, supervisor = ?
         WHERE employee_id = ?
     `;
-    db.query(query, [hotel_id, first_name, last_name, position, salary, supervisor, employee_id], (err, results) => {
-        if (err) {
-            console.error('Error updating employee:', err.message);
-            res.status(500).json({ error: 'Error updating employee.' });
-        } else {
-            res.json({ success: true });
-        }
-    });}
+        db.query(query, [hotel_id, first_name, last_name, position, salary, supervisor, employee_id], (err, results) => {
+            if (err) {
+                console.error('Error updating employee:', err.message);
+                res.status(500).json({ error: 'Error updating employee.' });
+            } else {
+                res.json({ success: true });
+            }
+        });
+    }
 });
 
 // Delete a employee
 app.delete('/api/employees/:id', verifyToken, (req, res) => {
     if (req.role === 'admin') {
-    const id = req.body['employee_id'];
-    const query = 'DELETE FROM Employee WHERE employee_id = ?';
-    db.query(query, [id], (err, results) => {
-        if (err) {
-            console.error('Error deleting employee:', err.message);
-            res.status(500).json({ error: 'Error deleting employee.' });
-            console.log(id);
-        } else {
-            res.json({ success: true });
-            console.log(id);
-        }
-    });}
+        const id = req.body['employee_id'];
+        const query = 'DELETE FROM Employee WHERE employee_id = ?';
+        db.query(query, [id], (err, results) => {
+            if (err) {
+                console.error('Error deleting employee:', err.message);
+                res.status(500).json({ error: 'Error deleting employee.' });
+                console.log(id);
+            } else {
+                res.json({ success: true });
+                console.log(id);
+            }
+        });
+    }
 });
-
-
-
 
 
 
@@ -599,70 +497,74 @@ app.delete('/api/employees/:id', verifyToken, (req, res) => {
 // Fetch all rooms
 app.get('/api/rooms', verifyToken, (req, res) => {
     if (req.role === 'admin') {
-    const query = 'SELECT * FROM Room';
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error('Error fetching rooms:', err.message);
-            res.status(500).json({ error: 'Error fetching rooms.' });
-        } else {
-            res.json(results);
-        }
-    });}
+        const query = 'SELECT * FROM Room';
+        db.query(query, (err, results) => {
+            if (err) {
+                console.error('Error fetching rooms:', err.message);
+                res.status(500).json({ error: 'Error fetching rooms.' });
+            } else {
+                res.json(results);
+            }
+        });
+    }
 });
 
 // Add a new room
 app.post('/api/rooms', verifyToken, (req, res) => {
     if (req.role === 'admin') {
-    const { room_id, hotel_id, room_type, rates, status } = req.body;
-    const query = `
+        const { room_id, hotel_id, room_type, rates, status } = req.body;
+        const query = `
         INSERT INTO Room (room_id, hotel_id, room_type, rates, status)
         VALUES (?, ?, ?, ?, ?)
     `;
-    db.query(query, [room_id, hotel_id, room_type, rates, status], (err, results) => {
-        if (err) {
-            console.error('Error adding room:', err.message);
-            res.status(500).json({ error: 'Error adding room.' });
-        } else {
-            res.json({ success: true, room_id: results.insertId });
-        }
-    });}
+        db.query(query, [room_id, hotel_id, room_type, rates, status], (err, results) => {
+            if (err) {
+                console.error('Error adding room:', err.message);
+                res.status(500).json({ error: 'Error adding room.' });
+            } else {
+                res.json({ success: true, room_id: results.insertId });
+            }
+        });
+    }
 });
 
 // Update an existing room
 app.put('/api/rooms/:id', verifyToken, (req, res) => {
     if (req.role === 'admin') {
-    //const { id } = req.params;
-    var {room_id, hotel_id, room_type, rates, status } = req.body;
-    const query = `
+        //const { id } = req.params;
+        var { room_id, hotel_id, room_type, rates, status } = req.body;
+        const query = `
         UPDATE Room
         SET hotel_id = ?, room_type = ?, rates = ?, status = ?
         WHERE room_id = ?
     `;
-    db.query(query, [hotel_id, room_type, rates, status, room_id], (err, results) => {
-        if (err) {
-            console.error('Error updating room:', err.message);
-            res.status(500).json({ error: 'Error updating room.' });
-        } else {
-            res.json({ success: true });
-        }
-    });}
+        db.query(query, [hotel_id, room_type, rates, status, room_id], (err, results) => {
+            if (err) {
+                console.error('Error updating room:', err.message);
+                res.status(500).json({ error: 'Error updating room.' });
+            } else {
+                res.json({ success: true });
+            }
+        });
+    }
 });
 
 // Delete a room
 app.delete('/api/rooms/:id', verifyToken, (req, res) => {
     if (req.role === 'admin') {
-    const id = req.body['room_id'];
-    const query = 'DELETE FROM Room WHERE room_id = ?';
-    db.query(query, [id], (err, results) => {
-        if (err) {
-            console.error('Error deleting room:', err.message);
-            res.status(500).json({ error: 'Error deleting room.' });
-            console.log(id);
-        } else {
-            res.json({ success: true });
-            console.log(id);
-        }
-    });}
+        const id = req.body['room_id'];
+        const query = 'DELETE FROM Room WHERE room_id = ?';
+        db.query(query, [id], (err, results) => {
+            if (err) {
+                console.error('Error deleting room:', err.message);
+                res.status(500).json({ error: 'Error deleting room.' });
+                console.log(id);
+            } else {
+                res.json({ success: true });
+                console.log(id);
+            }
+        });
+    }
 });
 
 
@@ -672,168 +574,76 @@ app.delete('/api/rooms/:id', verifyToken, (req, res) => {
 // Fetch all services
 app.get('/api/services', verifyToken, (req, res) => {
     if (req.role === 'admin') {
-    const query = 'SELECT * FROM Service';
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error('Error fetching services:', err.message);
-            res.status(500).json({ error: 'Error fetching services.' });
-        } else {
-            res.json(results);
-        }
-    });}
+        const query = 'SELECT * FROM Service';
+        db.query(query, (err, results) => {
+            if (err) {
+                console.error('Error fetching services:', err.message);
+                res.status(500).json({ error: 'Error fetching services.' });
+            } else {
+                res.json(results);
+            }
+        });
+    }
 });
 
 
 // Add a new service
 app.post('/api/services', verifyToken, (req, res) => {
     if (req.role === 'admin') {
-    const { service_id, name, description, price } = req.body;
-    const query = `
+        const { service_id, name, description, price } = req.body;
+        const query = `
         INSERT INTO service (service_id, name, description, price)
         VALUES (?, ?, ?, ?)
     `;
-    db.query(query, [service_id, name, description, price], (err, results) => {
-        if (err) {
-            console.error('Error adding service:', err.message);
-            res.status(500).json({ error: 'Error adding service.' });
-        } else {
-            res.json({ success: true, service_id: results.insertId });
-        }
-    });}
+        db.query(query, [service_id, name, description, price], (err, results) => {
+            if (err) {
+                console.error('Error adding service:', err.message);
+                res.status(500).json({ error: 'Error adding service.' });
+            } else {
+                res.json({ success: true, service_id: results.insertId });
+            }
+        });
+    }
 });
 
 // Update an existing service
 app.put('/api/services/:id', verifyToken, (req, res) => {
     if (req.role === 'admin') {
-    //const { id } = req.params;
-    var {service_id, name, description, price } = req.body;
-    const query = `
+        //const { id } = req.params;
+        var { service_id, name, description, price } = req.body;
+        const query = `
         UPDATE service
         SET name = ?, description = ?, price = ?
         WHERE service_id = ?
     `;
-    db.query(query, [name, description, service_id, service_id], (err, results) => {
-        if (err) {
-            console.error('Error updating service:', err.message);
-            res.status(500).json({ error: 'Error updating service.' });
-        } else {
-            res.json({ success: true });
-        }
-    });}
+        db.query(query, [name, description, service_id, service_id], (err, results) => {
+            if (err) {
+                console.error('Error updating service:', err.message);
+                res.status(500).json({ error: 'Error updating service.' });
+            } else {
+                res.json({ success: true });
+            }
+        });
+    }
 });
 
 // Delete a service
 app.delete('/api/services/:id', verifyToken, (req, res) => {
     if (req.role === 'admin') {
-    const id = req.body['service_id'];
-    const query = 'DELETE FROM service WHERE service_id = ?';
-    db.query(query, [id], (err, results) => {
-        if (err) {
-            console.error('Error deleting service:', err.message);
-            res.status(500).json({ error: 'Error deleting service.' });
-            console.log(id);
-        } else {
-            res.json({ success: true });
-            console.log(id);
-        }
-    });}
+        const id = req.body['service_id'];
+        const query = 'DELETE FROM service WHERE service_id = ?';
+        db.query(query, [id], (err, results) => {
+            if (err) {
+                console.error('Error deleting service:', err.message);
+                res.status(500).json({ error: 'Error deleting service.' });
+                console.log(id);
+            } else {
+                res.json({ success: true });
+                console.log(id);
+            }
+        });
+    }
 });
-
-
-
-
-
-
-
-/*
-// Fetch all hotels
-app.get('/api/hotels', (req, res) => {
-    const query = 'SELECT * FROM Hotel';
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error('Error fetching hotels:', err.message);
-            res.status(500).json({ error: 'Error fetching hotels.' });
-        } else {
-            res.json(results);
-        }
-    });
-});
-
-// Fetch rooms by hotel ID
-app.get('/api/rooms/:hotel_id', (req, res) => {
-    const { hotel_id } = req.params;
-    const query = 'SELECT * FROM Room WHERE hotel_id = ?';
-    db.query(query, [hotel_id], (err, results) => {
-        if (err) {
-            console.error('Error fetching rooms:', err.message);
-            res.status(500).json({ error: 'Error fetching rooms.' });
-        } else {
-            res.json(results);
-        }
-    });
-});
-
-// Create a booking
-app.post('/api/bookings', (req, res) => {
-    const { room_id, check_in_date, check_out_date, total_price, status } = req.body;
-    const query = `
-        INSERT INTO Booking (room_id, check_in_date, check_out_date, total_price, status)
-        VALUES (?, ?, ?, ?, ?)
-    `;
-    db.query(query, [room_id, check_in_date, check_out_date, total_price, status], (err, results) => {
-        if (err) {
-            console.error('Error creating booking:', err.message);
-            res.status(500).json({ error: 'Error creating booking.' });
-        } else {
-            res.json({ bookingId: results.insertId });
-        }
-    });
-});
-
-// Fetch guest details by guest ID
-app.get('/api/guest/:guest_id', (req, res) => {
-    const { guest_id } = req.params;
-    const query = 'SELECT * FROM Guest WHERE guest_id = ?';
-    db.query(query, [guest_id], (err, results) => {
-        if (err) {
-            console.error('Error fetching guest details:', err.message);
-            res.status(500).json({ error: 'Error fetching guest details.' });
-        } else {
-            res.json(results);
-        }
-    });
-});
-
-// Fetch all services
-app.get('/api/services', (req, res) => {
-    const query = 'SELECT * FROM Service';
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error('Error fetching services:', err.message);
-            res.status(500).json({ error: 'Error fetching services.' });
-        } else {
-            res.json(results);
-        }
-    });
-});
-
-// Fetch bookings by room ID
-app.get('/api/bookings/:room_id', (req, res) => {
-    const { room_id } = req.params;
-    const query = 'SELECT * FROM Booking WHERE room_id = ?';
-    db.query(query, [room_id], (err, results) => {
-        if (err) {
-            console.error('Error fetching bookings:', err.message);
-            res.status(500).json({ error: 'Error fetching bookings.' });
-        } else {
-            res.json(results);
-        }
-    });
-});*/
-
-
-
-
 
 
 
@@ -850,17 +660,17 @@ app.get("/api/analytics/reservations", (req, res) => {
       ORDER BY date
     `;
     db.query(query, (err, results) => {
-      if (err) {
-        console.error("Error fetching reservation stats:", err.message);
-        res.status(500).send("Error fetching reservation stats.");
-      } else {
-        res.json(results);
-      }
+        if (err) {
+            console.error("Error fetching reservation stats:", err.message);
+            res.status(500).send("Error fetching reservation stats.");
+        } else {
+            res.json(results);
+        }
     });
-  });
-  
-  // Analytics: Room Occupancy
-  app.get("/api/analytics/occupancy", (req, res) => {
+});
+
+// Analytics: Room Occupancy
+app.get("/api/analytics/occupancy", (req, res) => {
     const query = `
       SELECT Room.room_type AS type, COUNT(Booking.room_id) AS occupancy
       FROM Room
@@ -868,15 +678,15 @@ app.get("/api/analytics/reservations", (req, res) => {
       GROUP BY Room.room_type
     `;
     db.query(query, (err, results) => {
-      if (err) {
-        console.error("Error fetching room occupancy:", err.message);
-        res.status(500).send("Error fetching room occupancy.");
-      } else {
-        res.json(results);
-      }
+        if (err) {
+            console.error("Error fetching room occupancy:", err.message);
+            res.status(500).send("Error fetching room occupancy.");
+        } else {
+            res.json(results);
+        }
     });
-  });
-  
+});
+
 // Serve React App
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));

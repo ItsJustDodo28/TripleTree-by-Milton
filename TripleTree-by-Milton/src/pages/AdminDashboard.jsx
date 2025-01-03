@@ -73,21 +73,21 @@ const AdminDashboard = () => {
   };
   const handleDelete = async (item) => {
     try {
-        const response = await fetch(`http://localhost:5000/api/${activeSection}/${item[0]}`, {
-            method: "DELETE",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(item),
-        });
+      const response = await fetch(`http://localhost:5000/api/${activeSection}/${item[0]}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(item),
+      });
 
-        if (response.ok) {
-            setData(data.filter((i) => i.id !== item[0])); // Remove the deleted item from the state
-        } else {
-            console.error("Error deleting item.");
-        }
+      if (response.ok) {
+        setData(data.filter((i) => i.id !== item[0])); // Remove the deleted item from the state
+      } else {
+        console.error("Error deleting item.");
+      }
     } catch (error) {
-        console.error("Error deleting item:", error);
+      console.error("Error deleting item:", error);
     }
-};
+  };
 
   return (
     <div className="admin-dashboard-container">
@@ -99,9 +99,8 @@ const AdminDashboard = () => {
               <li
                 key={section}
                 onClick={() => setActiveSection(section)}
-                className={`admin-dashboard-sidebar-item ${
-                  activeSection === section ? "active" : ""
-                }`}
+                className={`admin-dashboard-sidebar-item ${activeSection === section ? "active" : ""
+                  }`}
               >
                 {section.charAt(0).toUpperCase() + section.slice(1)}
               </li>
@@ -132,46 +131,46 @@ const AdminDashboard = () => {
           </div>
         </header>
         {activeSection === "analytics" ? (
-            <Analytics />
-            ) : (
+          <Analytics />
+        ) : (
 
-        <section className="admin-dashboard-data-table">
-          <table className="admin-dashboard-table">
-            <thead className="admin-dashboard-table-header">
-              <tr>
-                {data.length > 0 &&
-                  Object.keys(data[0]).map((key) => (
-                    <th key={key} className="admin-dashboard-table-header-cell">
-                      {key}
-                    </th>
-                  ))}
-                <th className="admin-dashboard-table-header-cell">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="admin-dashboard-table-body">
-              {filteredData.map((item, index) => (
-                <tr key={index} className="admin-dashboard-table-row">
-                  {Object.values(item).map((value, idx) => (
-                    <td key={idx} className="admin-dashboard-table-cell">
-                      {value}
-                    </td>
-                  ))}
-                  <td className="admin-dashboard-table-cell">
-                    <button
-                      className="admin-dashboard-edit-button"
-                      onClick={() => openModal(item)}
-                    >
-                      Edit
-                    </button>
-                    <button className="admin-dashboard-delete-button" onClick={() => handleDelete(item)}>
-                      Delete
-                    </button>
-                  </td>
+          <section className="admin-dashboard-data-table">
+            <table className="admin-dashboard-table">
+              <thead className="admin-dashboard-table-header">
+                <tr>
+                  {data.length > 0 &&
+                    Object.keys(data[0]).map((key) => (
+                      <th key={key} className="admin-dashboard-table-header-cell">
+                        {key}
+                      </th>
+                    ))}
+                  <th className="admin-dashboard-table-header-cell">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </section> )}
+              </thead>
+              <tbody className="admin-dashboard-table-body">
+                {filteredData.map((item, index) => (
+                  <tr key={index} className="admin-dashboard-table-row">
+                    {Object.values(item).map((value, idx) => (
+                      <td key={idx} className="admin-dashboard-table-cell">
+                        {value}
+                      </td>
+                    ))}
+                    <td className="admin-dashboard-table-cell">
+                      <button
+                        className="admin-dashboard-edit-button"
+                        onClick={() => openModal(item)}
+                      >
+                        Edit
+                      </button>
+                      <button className="admin-dashboard-delete-button" onClick={() => handleDelete(item)}>
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </section>)}
       </main>
 
       {isModalOpen && (
