@@ -52,10 +52,10 @@ const Payment = () => {
                         {state.roomsx.map((room, index) => (
                             <div key={index}>
                                 <li>
-                                    <p><strong>Room:</strong> {room.name}</p>
+                                    <p><strong>Room:</strong> {room.type_name}</p>
                                 </li>
                                 <li>
-                                    <ul>
+                                    {/* <ul>
                                         {
                                             room.addons.map((addon, index) => (
                                                 <li key={index}>
@@ -63,13 +63,13 @@ const Payment = () => {
                                                 </li>
                                             ))
                                         }
-                                    </ul>
+                                    </ul> */}
                                 </li>
                                 <li>
                                     <p><strong>Guests:</strong> {room.guests}</p>
                                 </li>
                                 <li>
-                                    <p><strong>Price:</strong> {room.price}</p>
+                                    <p><strong>Price:</strong> {room.rates}</p>
                                 </li>
                             </div>
                         ))}

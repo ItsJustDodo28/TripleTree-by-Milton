@@ -7,39 +7,8 @@ import { useNavigate } from "react-router-dom";
 const RoomDetail = (props) => {
     const room = props.room;
 
-
     //const navigate = useNavigate();
-    const [selectedOption, setSelectedOption] = useState("plain");
-    const [price, setPrice] = useState(room.rates);
     const [showPopup, setShowPopup] = useState(false);
-    const [addons, setAddons] = useState([]);
-
-    const handleOptionChange = (option) => {
-        setSelectedOption(option);
-        switch (option) {
-            case "plain":
-                setPrice(room.rates);
-                break;
-            case "breakfast":
-                setPrice(room.rates * 1.1); // Adds 10% for breakfast
-                break;
-            case "ocean-view":
-                setPrice(room.rates * 1.1); // Adds 10% for ocean view
-                break;
-            case "breakfast-ocean-view":
-                setPrice(room.rates * 1.15); // Adds 15% for both
-                break;
-            default:
-                setPrice(room.rates);
-        }
-    };
-    const toggleAddon = (addon) => {
-        if (addons.includes(addon)) {
-            setAddons(addons.filter((a) => a !== addon));
-        } else {
-            setAddons([...addons, addon]);
-        }
-    };
 
     const handleConfirmBooking = () => {
         setShowPopup(true); // Show the popup
@@ -50,23 +19,8 @@ const RoomDetail = (props) => {
         setShowPopup(false);
     };
 
-    const handleContinueToPayment = () => {
-        /*
-        navigate("/payment", {
-            state: {
-                room,
-                selectedOption,
-                addons,
-                totalPrice: price + addons.reduce((acc, addon) => acc + (addon === "Spa Package" ? 50 : addon === "Airport Transfers" ? 30 : addon === "Meal Package" ? 40 : 0), 0),
-            },
-        });*/
-        props.selectRoom({
-            room,
-            selectedOption,
-            addons,
-            totalPrice: price + addons.reduce((acc, addon) => acc + (addon === "Spa Package" ? 50 : addon === "Airport Transfers" ? 30 : addon === "Meal Package" ? 40 : 0), 0)
-        })
-
+    const handleContinue = () => {
+        props.selectRoom(room)
         handleClosePopup();
     };
 
@@ -86,36 +40,6 @@ const RoomDetail = (props) => {
                 ))}
             </ul>
 
-            {/* Room Options Section */}
-            <div className="room-options">
-                <h2>Select Your Option</h2>
-                <div className="options">
-                    <button
-                        className={selectedOption === "plain" ? "active" : ""}
-                        onClick={() => handleOptionChange("plain")}
-                    >
-                        Plain Room (${room.rates})
-                    </button>
-                    <button
-                        className={selectedOption === "breakfast" ? "active" : ""}
-                        onClick={() => handleOptionChange("breakfast")}
-                    >
-                        Room + Breakfast (+10%)
-                    </button>
-                    <button
-                        className={selectedOption === "ocean-view" ? "active" : ""}
-                        onClick={() => handleOptionChange("ocean-view")}
-                    >
-                        Room + Ocean View (+10%)
-                    </button>
-                    <button
-                        className={selectedOption === "breakfast-ocean-view" ? "active" : ""}
-                        onClick={() => handleOptionChange("breakfast-ocean-view")}
-                    >
-                        Room + Breakfast + Ocean View (+15%)
-                    </button>
-                </div>
-            </div>
 
             <button className="book-now-button" onClick={handleConfirmBooking}>
                 Select
@@ -123,32 +47,12 @@ const RoomDetail = (props) => {
             {showPopup && (
                 <div className="popup-overlay">
                     <div className="popup-content">
-                        <h2>Enhance Your Stay</h2>
-                        <ul className="extras-list">
-                            <li>
-                                <label>
-                                    <input type="checkbox" onChange={() => toggleAddon("Spa Package")} />
-                                    Spa Package (+$50)
-                                </label>
-                            </li>
-                            <li>
-                                <label>
-                                    <input type="checkbox" onChange={() => toggleAddon("Airport Transfers")} />
-                                    Airport Transfers (+$30)
-                                </label>
-                            </li>
-                            <li>
-                                <label>
-                                    <input type="checkbox" onChange={() => toggleAddon("Meal Package")} />
-                                    Meal Package (+$40)
-                                </label>
-                            </li>
-                        </ul>
+                        <h4 style={{ margin: '4em' }}>Do you want to select this room?</h4>
                         <div className="popup-actions">
                             <button className="back-button" onClick={handleClosePopup}>
-                                Back to Options
+                                Back
                             </button>
-                            <button className="continue-button" onClick={handleContinueToPayment}>
+                            <button className="continue-button" onClick={handleContinue}>
                                 Select
                             </button>
                         </div>

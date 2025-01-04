@@ -257,11 +257,6 @@ app.get('/api/check-auth', verifyToken, (req, res) => {
 
 
 
-
-
-
-
-
 /*   if (email === 'admin' && password === 'admin') {
        // Generate JWT
        const token = jwt.sign({ userId: 'admin', role: 'admin' }, SECRET_KEY, {
@@ -1020,7 +1015,9 @@ app.delete('/api/employees/:id', verifyToken, (req, res) => {
 
 
 // Fetch all rooms
-app.get('/api/ROOM', (req, res) => {
+app.put('/api/ROOM', (req, res) => {
+    const check_in_date = req.body.startDate;
+    const check_out_date = req.body.endDate;
     const query = `
         SELECT 
         r.room_id,
@@ -1033,7 +1030,8 @@ app.get('/api/ROOM', (req, res) => {
         r.hotel_id,
         COUNT(r.room_id) AS available_rooms,
         h.name AS hotel,
-        h.address as address
+        h.address as address,
+        rt.capacity
     FROM 
         room_type rt
     LEFT JOIN 
@@ -1041,19 +1039,61 @@ app.get('/api/ROOM', (req, res) => {
     LEFT JOIN
         hotel h ON r.hotel_id = h.hotel_id
     WHERE 
-        r.status = 'Available' -- Assuming 'available' is the status for rooms that are free
+        r.status = 'Available'
     GROUP BY 
-        rt.type_id, r.hotel_id, r.rates;
+        rt.type_id, r.hotel_id, r.rates, r.room_id;
         `;
     db.query(query, (err, results) => {
         if (err) {
             console.error('Error fetching rooms:', err.message);
             res.status(500).json({ error: 'Error fetching rooms.' });
         } else {
-            results.forEach(result => {
-                result.features = result.features.split(',').map(email => email.trim());
+            const booking = `
+            SELECT * FROM booking
+            `
+            db.query(booking, (errb, resultsb) => {
+                if (errb) {
+                    console.error('Error fetching rooms:', errb.message);
+                    res.status(500).json({ error: 'Error fetching rooms.' });
+                }
+                else {
+
+                    // Get all ids from the first array that overlap with the provided range
+                    const overlappingIds = resultsb
+                        .filter(item => { return (Date(item.check_in_date) <= Date(check_out_date) && Date(item.check_out_date) >= Date(check_in_date)); })
+                        .map(item => item.id);
+
+                    // Remove objects from the second array if their id is in the overlappingIds
+                    filteredArray = results.filter(item => !overlappingIds.includes(item.room_id));
+                    // filteredArray.reduce((acc, curr) => {
+                    //     // If the index already exists in the accumulator, increase the count
+                    //     if (acc[curr.index]) {
+                    //       acc[curr.index].count++;
+                    //     } else {
+                    //       // Otherwise, initialize the group with count 1
+                    //       acc[curr.index] = { ...curr, count: 1 };
+                    //     }
+                    //     return acc;
+                    //   }, {});
+
+
+                    const combinedRooms = Object.values(filteredArray.reduce((acc, room) => {
+                        const key = `${room.type_id}-${room.hotel_id}-${room.rates}`;
+                        if (!acc[key]) {
+                            acc[key] = { ...room }; // Clone the object to avoid mutation
+                        } else {
+                            acc[key].available_rooms += room.available_rooms; // Sum available_rooms
+                        }
+                        return acc;
+                    }, {}));
+
+
+                    combinedRooms.forEach(result => {
+                        result.features = result.features.split(',').map(feature => feature.trim());
+                    });
+                    res.json(combinedRooms);
+                }
             });
-            res.json(results);
         }
     });
 });

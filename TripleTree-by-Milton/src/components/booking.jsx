@@ -5,19 +5,19 @@ import { Link } from 'react-router-dom';
 function Booking(props) {
     const nav = useNavigate();
 
-    const [startDate, setStartDate] = useState("");
-    const [endDate, setEndDate] = useState("");
     const [rooms, setRooms] = useState(1);
     const [guests, setGuests] = useState(2);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-    const calculateNights = (props) => {
-        if (startDate && endDate) {
-            const start = new Date(startDate);
-            const end = new Date(endDate);
+    const calculateNights = () => {
+        if (props.startDate && props.endDate) {
+            const start = new Date(props.startDate);
+            const end = new Date(props.endDate);
             const difference = (end - start) / (1000 * 60 * 60 * 24); // Convert ms to days
+            props.setNights(difference > 0 ? difference : 0);
             return difference > 0 ? difference : 0;
         }
+        props.setNights(0);
         return 0;
     };
 
@@ -33,8 +33,8 @@ function Booking(props) {
                         <input
                             type="date"
                             id="startDate"
-                            value={startDate}
-                            onChange={(e) => setStartDate(e.target.value)}
+                            value={props.startDate}
+                            onChange={(e) => props.setStartDate(e.target.value)}
                         />
                     </div>
                     <div className="booking-item">
@@ -42,8 +42,8 @@ function Booking(props) {
                         <input
                             type="date"
                             id="endDate"
-                            value={endDate}
-                            onChange={(e) => setEndDate(e.target.value)}
+                            value={props.endDate}
+                            onChange={(e) => props.setEndDate(e.target.value)}
                         />
                     </div>
                     <div className="booking-item">
@@ -86,7 +86,7 @@ function Booking(props) {
                         {guests !== 1 ? "s" : ""}
                     </p>
                 </div>
-                <Link to="/Reservations"><button className="booking-button">Book Now</button></Link>
+                <Link to="/Reservations"><button className="booking-button" onClick={props.fetchData}>Book Now</button></Link>
             </div>
         </section>
     );

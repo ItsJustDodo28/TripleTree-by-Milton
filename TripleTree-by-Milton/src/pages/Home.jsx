@@ -96,7 +96,9 @@ function HomePage() {
           </div>
         </div>
       </header>
-      <Booking />
+      <button onClick={() => { nav('/Reservations') }}>
+        BOOK NOW!
+      </button>
       <section className="welcome-carousel-section">
         <div className="welcome-message">
           <h2>Welcome to TripleTree By Milton</h2>
