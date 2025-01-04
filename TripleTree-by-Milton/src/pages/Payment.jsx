@@ -1,11 +1,16 @@
 import "../styles/Payment.css";
 import { useLocation } from "react-router-dom";
+import { useEffect } from 'react';
 
 
 const Payment = () => {
     const location = useLocation();
     const state = location.state || {};
+    useEffect(() => {
+        console.log("start date");
+        console.log(state.startDate);
 
+    }, [])
     return (
         <div className="payment-page">
             <h1>Complete Your Booking</h1>

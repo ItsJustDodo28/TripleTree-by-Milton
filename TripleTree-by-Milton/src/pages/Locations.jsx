@@ -2,43 +2,29 @@ import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import "../styles/Locations.css";
 import { useState } from "react";
 
-const hotels = [
-    {
-        id: 1,
-        name: "TripleTree: Luxury Retreat",
-        description: "Nestled in the heart of Alexandria, this branch combines modern luxury with the charm of the Mediterranean. Perfect for both business and leisure, it offers elegant rooms, fine dining, and exceptional city views.",
-        lat: 31.2001,
-        lng: 29.9187,
-        image: "/Luxury Retreat.jpg",
-    },
-    {
-        id: 2,
-        name: "TripleTree: Cozy Escape",
-        description:"Located in the serene town of Dahab, this branch provides a peaceful and affordable getaway. Surrounded by natural beauty, it's ideal for guests looking for a relaxing retreat close to the Red Sea.",
-        lat: 28.5091,
-        lng: 34.5136,
-        image: "/Cosy.jpg",
-    },
-    {
-        id: 3,
-        name: "TripleTree: Beachside Resort",
-        description: "Situated along the pristine shores of Hurghada, this resort offers stunning beach views, exciting water activities, and a tranquil atmosphere for the ultimate seaside vacation.",
-        lat: 27.2579,
-        lng: 33.8116,
-        image: "/Beach-Side.jpg",
-    },
-    {
-        id: 4,
-        name: "TripleTree: Mountain Retreat",
-        description: "Escape to the breathtaking Siwa Oasis, where this branch combines natural beauty with luxury. Ideal for adventurers and peace seekers, it offers a unique mix of relaxation and exploration in the desert landscape.",
-        lat: 29.2032,
-        lng: 25.5195,
-        image: "/Mountain.jpg",
-    },
-];
+
+
+
+
 
 const Locations = () => {
+    const [hotels, setHotels] = useState([]);
     const [selectedHotel, setSelectedHotel] = useState(hotels[0]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch(`http://localhost:5000/api/hotels`);
+                const result = await response.json();
+                setHotels(result);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        };
+
+        fetchData();
+    }, []);
+
 
     const mapContainerStyle = {
         width: "100%",
@@ -59,9 +45,8 @@ const Locations = () => {
                     {hotels.map((hotel) => (
                         <div
                             key={hotel.id}
-                            className={`hotel-card ${
-                                hotel.id === selectedHotel.id ? "active" : ""
-                            }`}
+                            className={`hotel-card ${hotel.id === selectedHotel.id ? "active" : ""
+                                }`}
                             onClick={() => setSelectedHotel(hotel)}
                         >
                             <img src={hotel.image} alt={hotel.name} className="hotel-image" />
@@ -75,7 +60,7 @@ const Locations = () => {
             </div>
 
             <div className="map-container">
-                <LoadScript googleMapsApiKey="AIzaSyBLNV_yj1q6X21zNopvPJV31MrHwwGRsj4"> 
+                <LoadScript googleMapsApiKey="AIzaSyBLNV_yj1q6X21zNopvPJV31MrHwwGRsj4">
                     <GoogleMap
                         mapContainerStyle={mapContainerStyle}
                         center={center}
