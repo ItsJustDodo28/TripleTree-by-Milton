@@ -1159,6 +1159,18 @@ app.delete('/api/guests/:id', verifyToken, (req, res) => {
 
 
 
+// Fetch all hotels
+app.get('/api/hotels', (req, res) => {
+    const query = 'SELECT * FROM hotel';
+    db.query(query, (err, results) => {
+        if (err) {
+            console.error('Error fetching hotels:', err.message);
+            res.status(500).json({ error: 'Error fetching hotels.' });
+        } else {
+            res.json(results);
+        }
+    });
+});
 
 
 
@@ -1241,6 +1253,7 @@ app.delete('/api/employees/:id', verifyToken, (req, res) => {
 app.put('/api/ROOM', (req, res) => {
     const check_in_date = req.body.startDate;
     const check_out_date = req.body.endDate;
+    const hotel = req.body.hotel;
     const query = `
         SELECT 
         r.room_id,
@@ -1262,7 +1275,7 @@ app.put('/api/ROOM', (req, res) => {
     LEFT JOIN
         hotel h ON r.hotel_id = h.hotel_id
     WHERE 
-        r.status = 'Available'
+        r.status = 'Available' ${hotel ? `AND r.hotel_id = ${Number(hotel)}` : ""}
     GROUP BY 
         rt.type_id, r.hotel_id, r.rates, r.room_id;
         `;
@@ -1283,7 +1296,7 @@ app.put('/api/ROOM', (req, res) => {
 
                     // Get all ids from the first array that overlap with the provided range
                     const overlappingIds = resultsb
-                        .filter(item => { return (Date(item.check_in_date) <= Date(check_out_date) && Date(item.check_out_date) >= Date(check_in_date)); })
+                        .filter(item => { return ((new Date(item.check_in_date)) <= (new Date(check_out_date)) && (new Date(item.check_out_date)) >= (new Date(check_in_date))); })
                         .map(item => item.id);
 
                     // Remove objects from the second array if their id is in the overlappingIds

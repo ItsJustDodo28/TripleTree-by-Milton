@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
@@ -8,6 +8,24 @@ function Booking(props) {
     const [rooms, setRooms] = useState(1);
     const [guests, setGuests] = useState(2);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
+
+    const [hotels, setHotels] = useState([]);
+    const [selectedHotel, setSelectedHotel] = useState(hotels[0]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch(`http://localhost:5000/api/hotels`);
+                const result = await response.json();
+                setHotels(result);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        };
+
+        fetchData();
+    }, []);
 
     const calculateNights = () => {
         if (props.startDate && props.endDate) {
@@ -33,7 +51,6 @@ function Booking(props) {
                         <input
                             type="date"
                             id="startDate"
-                            value={props.startDate}
                             onChange={(e) => props.setStartDate(e.target.value)}
                         />
                     </div>
@@ -42,7 +59,6 @@ function Booking(props) {
                         <input
                             type="date"
                             id="endDate"
-                            value={props.endDate}
                             onChange={(e) => props.setEndDate(e.target.value)}
                         />
                     </div>
@@ -78,6 +94,21 @@ function Booking(props) {
                             </div>
                         )}
                     </div>
+                    <div className="booking-item">
+                        <label htmlFor="dropdown">Choose a hotel:</label>
+                        <select id="dropdown" value={props.selectedHotel} onChange={(e) => props.setSelectedHotel(e.target.value)}>
+                            <option value="" disabled>
+                                Select an option
+                            </option>
+                            {hotels.map((hotel, index) => (
+                                <option key={index} value={hotel.hotel_id}>
+                                    {hotel.name}
+                                </option>
+                            ))}
+                        </select>
+                        {props.selectedHotel && <p>You selected: {props.selectedHotel}</p>}
+                    </div>
+
                 </div>
                 <div className="booking-summary">
                     <p className="price">????</p>

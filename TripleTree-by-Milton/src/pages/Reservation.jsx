@@ -18,6 +18,8 @@ const ResPage = (props) => {
     const [nights, setNights] = useState(0);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
+    const [selectedHotel, setSelectedHotel] = useState(null);
+
 
     const navigate = useNavigate();
 
@@ -29,7 +31,7 @@ const ResPage = (props) => {
             const response = await fetch(`http://localhost:5000/api/ROOM`, {
                 method: 'PUT',
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ startDate: startDate, endDate: endDate }),
+                body: JSON.stringify({ startDate: startDate, endDate: endDate, hotel: selectedHotel }),
             });
             const result = await response.json();
             setRooms(result);
@@ -44,7 +46,7 @@ const ResPage = (props) => {
     useEffect(() => {
 
         fetchData();
-    }, []);
+    }, [selectedHotel]);
 
 
     const handleCardClick = (room) => {
@@ -113,7 +115,7 @@ const ResPage = (props) => {
 
     return (
         <div className="reservation-page">
-            <Booking setroomn={setRoomn} setguestn={setGuestn} setNights={setNights} startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} fetchData={fetchData} />
+            <Booking setroomn={setRoomn} setguestn={setGuestn} setNights={setNights} startDate={startDate} setStartDate={setStartDate} endDate={endDate} setEndDate={setEndDate} fetchData={fetchData} selectedHotel={selectedHotel} setSelectedHotel={setSelectedHotel} />
             <div style={{
                 display: "flex",
                 justifyContent: "space-between",
