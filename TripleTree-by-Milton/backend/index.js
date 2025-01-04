@@ -9,8 +9,7 @@ const app = express();
 const PORT = 5000;
 const dialogflow = require('@google-cloud/dialogflow');
 const uuid = require('uuid');
-
-
+const paypal = require("@paypal/checkout-server-sdk"); 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
@@ -44,7 +43,18 @@ const verifyToken = (req, res, next) => {
     });
 };
 
+const environment =
+    process.env.PAYPAL_MODE === "live"
+        ? new paypal.core.LiveEnvironment(
+              process.env.PAYPAL_CLIENT_ID,
+              process.env.PAYPAL_CLIENT_SECRET
+          )
+        : new paypal.core.SandboxEnvironment(
+              process.env.PAYPAL_CLIENT_ID,
+              process.env.PAYPAL_CLIENT_SECRET
+          );
 
+const paypalClient = new paypal.core.PayPalHttpClient(environment);
 
 //////////////////////////////////// login //////////////////////////////////////
 app.post('/api/register', (req, res) => {
@@ -240,7 +250,14 @@ app.post('/api/login', (req, res) => {
 app.get('/api/check-auth', verifyToken, (req, res) => {
     const userId = req.userId;
 
-    const query = `SELECT first_name FROM guest WHERE guest_id = (SELECT guest_id FROM users WHERE user_id = ?)`;
+    const query = `
+        SELECT g.first_name, g.last_name, ge.email, gp.phone_number 
+        FROM guest g
+        LEFT JOIN guest_email ge ON g.guest_id = ge.guest_id
+        LEFT JOIN guest_phone gp ON g.guest_id = gp.guest_id
+        WHERE g.guest_id = (SELECT guest_id FROM users WHERE user_id = ?)
+        `;
+
     db.query(query, [userId], (err, results) => {
         if (err) {
             console.error('Error checking user auth:', err.message);
@@ -251,7 +268,7 @@ app.get('/api/check-auth', verifyToken, (req, res) => {
             return res.status(401).json({ error: 'Unauthorized' });
         }
 
-        res.json({ firstName: results[0].first_name, role: req.role });
+        res.json({ firstName: results[0].first_name, lastName: results[0].last_name, role: req.role, email: results[0].email || '', phone: results[0].phone_number || '',});
     });
 });
 
@@ -324,6 +341,212 @@ const handleLogout = async () => {
 app.get('/api', (req, res) => {
     res.send('Welcome to the TripleTree API!');
 });
+
+app.post("/api/paypal/create-payment", async (req, res) => {
+    const { total, currency = "USD" } = req.body;
+
+    if (!total) {
+        return res.status(400).json({ error: "Total amount is required" });
+    }
+
+    const request = new paypal.orders.OrdersCreateRequest();
+    request.prefer("return=representation");
+    request.requestBody({
+        intent: "CAPTURE",
+        purchase_units: [
+            {
+                amount: {
+                    currency_code: currency,
+                    value: total.toFixed(2),
+                },
+            },
+        ],
+        application_context: {
+            brand_name: "HotelBooking",
+            landing_page: "NO_PREFERENCE",
+            user_action: "PAY_NOW",
+            return_url: "http://localhost:5000/api/paypal/execute-payment",
+            cancel_url: "http://localhost:5000/cancel",
+        },
+    });
+
+    try {
+        const order = await paypalClient.execute(request);
+        res.json({ id: order.result.id, approvalUrl: order.result.links[1].href });
+    } catch (err) {
+        console.error("PayPal Create Payment Error:", err);
+        res.status(500).json({ error: "Error creating PayPal payment" });
+    }
+});
+
+app.get("/api/paypal/execute-payment", async (req, res) => {
+    const { token, PayerID } = req.query;
+
+    if (!token || !PayerID) {
+        return res.status(400).json({ error: "Invalid PayPal payment details" });
+    }
+
+    const request = new paypal.orders.OrdersCaptureRequest(token);
+
+    try {
+        const capture = await paypalClient.execute(request);
+
+        // Save booking details to the database
+        const bookingId = await saveBookingToDatabase(capture.result);
+
+        res.redirect(`/confirmation?bookingId=${bookingId}`);
+    } catch (err) {
+        console.error("PayPal Execute Payment Error:", err);
+        res.status(500).json({ error: "Error capturing PayPal payment" });
+    }
+});
+
+// Save Booking to Database API Endpoint
+app.post("/api/booking/save", async (req, res) => {
+    const { rooms, startDate, endDate, totalPrice, guestInfo, paymentMethod } = req.body;
+
+    // Validate input
+    if (!rooms || !startDate || !endDate || !totalPrice || !paymentMethod) {
+        console.error("Missing required fields:", { rooms, startDate, endDate, totalPrice, paymentMethod });
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
+    try {
+        const bookingStatus = "Confirmed";
+        const bookingPromises = rooms.map((room) => {
+            console.log("Processing room:", room);
+
+            const insertBookingQuery = `
+                INSERT INTO booking (room_id, check_in_date, check_out_date, total_price, status)
+                VALUES (?, ?, ?, ?, ?)
+            `;
+
+            return new Promise((resolve, reject) => {
+                db.query(
+                    insertBookingQuery,
+                    [room.id, startDate, endDate, room.rates, bookingStatus],
+                    (err, results) => {
+                        if (err) {
+                            console.error("Error inserting booking:", err);
+                            return reject(err);
+                        }
+                        resolve(results.insertId);
+                    }
+                );
+            });
+        });
+
+        const bookingIds = await Promise.all(bookingPromises);
+
+        console.log("Booking IDs:", bookingIds);
+
+        // Insert payment for the first booking
+        const insertPaymentQuery = `
+            INSERT INTO payment (booking_id, amount, payment_method, payment_date, status)
+            VALUES (?, ?, ?, NOW(), ?)
+        `;
+
+        const paymentPromise = new Promise((resolve, reject) => {
+            db.query(
+                insertPaymentQuery,
+                [bookingIds[0], totalPrice, paymentMethod, "Completed"],
+                (err) => {
+                    if (err) {
+                        console.error("Error inserting payment:", err);
+                        return reject(err);
+                    }
+                    resolve();
+                }
+            );
+        });
+
+        await paymentPromise;
+
+        // If guest info is provided, link the guest to the bookings
+        if (guestInfo && guestInfo.fullName && guestInfo.email) {
+            const guestQuery = `
+                SELECT guest_id FROM guest_email WHERE email = ?
+            `;
+
+            db.query(guestQuery, [guestInfo.email], async (err, results) => {
+                if (err) {
+                    console.error("Error finding guest:", err);
+                    return res.status(500).json({ error: "Error finding guest" });
+                }
+
+                let guestId;
+                if (results.length > 0) {
+                    // Existing guest
+                    guestId = results[0].guest_id;
+                } else {
+                    // New guest
+                    const insertGuestQuery = `
+                        INSERT INTO guest (first_name, last_name)
+                        VALUES (?, ?)
+                    `;
+
+                    const [firstName, lastName] = guestInfo.fullName.split(" ");
+                    const guestResult = await new Promise((resolve, reject) => {
+                        db.query(insertGuestQuery, [firstName, lastName || ""], (err, results) => {
+                            if (err) {
+                                return reject(err);
+                            }
+                            resolve(results.insertId);
+                        });
+                    });
+
+                    guestId = guestResult;
+
+                    // Insert email
+                    const insertEmailQuery = `
+                        INSERT INTO guest_email (guest_id, email)
+                        VALUES (?, ?)
+                    `;
+                    db.query(insertEmailQuery, [guestId, guestInfo.email]);
+                }
+
+                // Link guest to bookings
+                const guestPromises = bookingIds.map((bookingId) => {
+                    const insertBookingGuestQuery = `
+                        INSERT INTO bookingguest (booking_id, guest_id)
+                        VALUES (?, ?)
+                    `;
+
+                    return new Promise((resolve, reject) => {
+                        db.query(insertBookingGuestQuery, [bookingId, guestId], (err) => {
+                            if (err) {
+                                return reject(err);
+                            }
+                            resolve();
+                        });
+                    });
+                });
+
+                await Promise.all(guestPromises);
+
+                console.log("Guest linked to bookings:", guestId);
+
+                res.status(200).json({
+                    success: true,
+                    message: "Booking saved successfully",
+                    bookingIds,
+                });
+            });
+        } else {
+            // If no guest info, just respond
+            res.status(200).json({
+                success: true,
+                message: "Booking saved successfully",
+                bookingIds,
+            });
+        }
+    } catch (err) {
+        console.error("Error saving booking:", err);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+
 
 app.post('/api/chatbot', async (req, res) => {
     const { message, sessionId } = req.body;
