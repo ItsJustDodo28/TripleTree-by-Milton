@@ -5,7 +5,7 @@ import NavBar from '../components/NavBar';
 import { Outlet } from 'react-router-dom';
 import Logo from '/Logo.png';
 import Fter from '../components/Footer';
-
+import Chatbot from '../components/Chatbot';
 
 function Layout() {
   const location = useLocation();
@@ -79,6 +79,7 @@ function Layout() {
         <Outlet />
       </div>
       <Fter></Fter>
+      <Chatbot />
     </div>
   );
 }

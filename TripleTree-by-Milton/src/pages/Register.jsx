@@ -20,13 +20,48 @@ function Register() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
+  // Validation errors
+  const [validationErrors, setValidationErrors] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+  });
+
+  const validateForm = () => {
+    const errors = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!firstName.trim()) {
+      errors.firstName = 'First name is required.';
+    }
+    if (!lastName.trim()) {
+      errors.lastName = 'Last name is required.';
+    }
+    if (!email.trim() || !emailRegex.test(email)) {
+      errors.email = 'Please provide a valid email address.';
+    }
+    if (!password.trim() || password.length < 8) {
+      errors.password = 'Password must be at least 8 characters long.';
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
     setSuccessMessage('');
 
+    // Validate form inputs
+    if (!validateForm()) {
+      return;
+    }
+
+    // Validate phone number
     if (!isValidPhoneNumber(phoneNumber)) {
-      setPhoneError('Invalid phone number');
+      setPhoneError('Invalid phone number.');
       return;
     }
     setPhoneError('');
@@ -82,6 +117,7 @@ function Register() {
             onChange={(e) => setFirstName(e.target.value)}
             required
           />
+          {validationErrors.firstName && <p className="error">{validationErrors.firstName}</p>}
         </div>
         <div className="form-group">
           <label htmlFor="lastName">Last Name</label>
@@ -92,6 +128,7 @@ function Register() {
             onChange={(e) => setLastName(e.target.value)}
             required
           />
+          {validationErrors.lastName && <p className="error">{validationErrors.lastName}</p>}
         </div>
         <div className="form-group">
           <label htmlFor="email">Email</label>
@@ -102,6 +139,7 @@ function Register() {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
+          {validationErrors.email && <p className="error">{validationErrors.email}</p>}
         </div>
         <div className="form-group">
           <label htmlFor="password">Password</label>
@@ -112,6 +150,7 @@ function Register() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+          {validationErrors.password && <p className="error">{validationErrors.password}</p>}
         </div>
         <div className="form-group">
           <label htmlFor="address">Address (optional)</label>

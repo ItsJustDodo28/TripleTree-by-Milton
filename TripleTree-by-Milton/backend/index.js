@@ -7,6 +7,9 @@ require('dotenv').config();
 const SEED = parseInt(process.env.SALT_ROUNDS, 10);
 const app = express();
 const PORT = 5000;
+const dialogflow = require('@google-cloud/dialogflow');
+const uuid = require('uuid');
+
 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -36,6 +39,7 @@ const verifyToken = (req, res, next) => {
 
         req.userId = decoded.userId;
         req.role = decoded.role;
+        req.firstName = decoded.firstName;
         next();
     });
 };
@@ -213,7 +217,7 @@ app.post('/api/login', (req, res) => {
 
             // Step 4: Generate JWT token
             const token = jwt.sign(
-                { userId: user.user_id, guestId: guestId, role: user.role },
+                { userId: user.user_id, guestId: guestId, role: user.role, firstName: user.first_name},
                 SECRET_KEY,
                 { expiresIn: '1h' }
             );
@@ -224,6 +228,8 @@ app.post('/api/login', (req, res) => {
                 secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
                 sameSite: 'strict',
             });
+            
+            
 
             // Respond with success and user role
             res.json({ success: true, message: 'Login successful', role: user.role });
@@ -231,7 +237,23 @@ app.post('/api/login', (req, res) => {
     });
 
 });
+app.get('/api/check-auth', verifyToken, (req, res) => {
+    const userId = req.userId;
 
+    const query = `SELECT first_name FROM guest WHERE guest_id = (SELECT guest_id FROM users WHERE user_id = ?)`;
+    db.query(query, [userId], (err, results) => {
+        if (err) {
+            console.error('Error checking user auth:', err.message);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+
+        if (results.length === 0) {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        res.json({ firstName: results[0].first_name, role: req.role });
+    });
+});
 
 
 
@@ -307,6 +329,47 @@ const handleLogout = async () => {
 app.get('/api', (req, res) => {
     res.send('Welcome to the TripleTree API!');
 });
+
+app.post('/api/chatbot', async (req, res) => {
+    const { message, sessionId } = req.body;
+    console.log('Incoming Chatbot Request:', { message, sessionId });
+    // Generate a unique session ID if not provided
+    const sessionClient = new dialogflow.SessionsClient({
+        keyFilename: path.join(__dirname, './dialogflow-key.json') // Path to your service account key
+    });
+    const sessionPath = sessionClient.projectAgentSessionPath(
+        'flash-span-446805-d0', // Replace with your Dialogflow project ID
+        sessionId || uuid.v4() // Use provided sessionId or generate a new one
+    );
+
+    const request = {
+        session: sessionPath,
+        queryInput: {
+            text: {
+                text: message,
+                languageCode: 'en', // Adjust the language code if necessary
+            },
+        },
+    };
+    console.log('Request Sent to Dialogflow:', request);
+
+    try {
+        const [response] = await sessionClient.detectIntent(request);
+        const result = response.queryResult;
+
+        console.log('Response Received from Dialogflow:', result);
+
+        res.json({
+            fulfillmentText: result.fulfillmentText,
+            intent: result.intent?.displayName || 'Default Fallback Intent',
+        });
+    } catch (error) {
+        console.error('Dialogflow error:', error.message);
+        res.status(500).json({ error: `Dialogflow error: ${error.message}` });
+    }
+});
+console.log('Dialogflow Key Path:', path.join(__dirname, 'dialogflow-key.json'));
+
 
 app.get('/api/profile', verifyToken, (req, res) => {
     const userId = req.userId;
@@ -1188,6 +1251,36 @@ app.get("/api/analytics/occupancy", (req, res) => {
         }
     });
 });
+
+app.get('/api/offers', (req, res) => {
+    const { tag } = req.query; // Optional filter
+    const query = tag
+        ? `SELECT * FROM offers WHERE FIND_IN_SET(?, tags)`
+        : `SELECT * FROM offers`;
+    db.query(query, [tag], (err, results) => {
+        if (err) {
+            console.error('Error fetching offers:', err);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+        res.json(results);
+    });
+});
+
+app.get('/api/offers/:id', (req, res) => {
+    const { id } = req.params;
+    const query = `SELECT * FROM offers WHERE offer_id = ?`;
+    db.query(query, [id], (err, results) => {
+        if (err) {
+            console.error('Error fetching offer details:', err);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+        if (results.length === 0) {
+            return res.status(404).json({ error: 'Offer not found' });
+        }
+        res.json(results[0]);
+    });
+});
+
 
 // Serve React App
 app.get('*', (req, res) => {

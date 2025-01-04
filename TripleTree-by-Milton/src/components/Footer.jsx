@@ -24,9 +24,9 @@ function Fter(props) {
                 {/* Contact Section */}
                 <div className="contact">
                     <h4>Contact Information</h4>
-                    <p>Phone: +20 11 210 77522</p>
-                    <p>Email: TripleTreeMainEmail@gmail.com</p>
-                    <p>Address: 16 Ibrahim Sherif St, Alexandria, Egypt</p>
+                    <p>Phone: +20 11 111 11111</p>
+                    <p>Email: customer.support@tripletree.org</p>
+                    <p>Address: 10 Mostafa Kamel St, Alexandria, Egypt</p>
                 </div>
 
                 {/* Social Media Section */}
