@@ -108,157 +108,156 @@ const Payment = () => {
         }
     };
 
-}, [])
-return (
-    <div className="payment-page">
-        <h1>Complete Your Booking</h1>
-        <div className="payment-container">
-            {/* Guest Information and Payment Form */}
-            <div className="payment-form">
-                <h2>Guest Information</h2>
-                {!isLoggedIn ? (
-                    <form>
+    return (
+        <div className="payment-page">
+            <h1>Complete Your Booking</h1>
+            <div className="payment-container">
+                {/* Guest Information and Payment Form */}
+                <div className="payment-form">
+                    <h2>Guest Information</h2>
+                    {!isLoggedIn ? (
+                        <form>
+                            <label>
+                                Full Name
+                                <input
+                                    type="text"
+                                    placeholder="Enter your full name"
+                                    required
+                                    value={userInfo.fullName}
+                                    onChange={(e) =>
+                                        setUserInfo((prev) => ({ ...prev, fullName: e.target.value }))
+                                    }
+                                />
+                            </label>
+                            <label>
+                                Email Address
+                                <input
+                                    type="email"
+                                    placeholder="Enter your email"
+                                    required
+                                    value={userInfo.email}
+                                    onChange={(e) =>
+                                        setUserInfo((prev) => ({ ...prev, email: e.target.value }))
+                                    }
+                                />
+                            </label>
+                            <label>
+                                Phone Number
+                                <input
+                                    type="tel"
+                                    placeholder="Enter your phone number"
+                                    required
+                                    value={userInfo.phone}
+                                    onChange={(e) =>
+                                        setUserInfo((prev) => ({ ...prev, phone: e.target.value }))
+                                    }
+                                />
+                            </label>
+                        </form>
+                    ) : (
+                        <div>
+                            <p>
+                                <strong>Name:</strong> {userInfo.fullName}
+                            </p>
+                            <p>
+                                <strong>Email:</strong> {userInfo.email}
+                            </p>
+                            <p>
+                                <strong>Phone:</strong> {userInfo.phone}
+                            </p>
+                        </div>
+                    )}
+
+                    <h2>Payment Information</h2>
+                    <div className="payment-methods">
                         <label>
-                            Full Name
                             <input
-                                type="text"
-                                placeholder="Enter your full name"
-                                required
-                                value={userInfo.fullName}
-                                onChange={(e) =>
-                                    setUserInfo((prev) => ({ ...prev, fullName: e.target.value }))
-                                }
+                                type="radio"
+                                name="paymentMethod"
+                                value="creditCard"
+                                checked={paymentMethod === "creditCard"}
+                                onChange={(e) => setPaymentMethod(e.target.value)}
                             />
+                            Credit Card
                         </label>
                         <label>
-                            Email Address
                             <input
-                                type="email"
-                                placeholder="Enter your email"
-                                required
-                                value={userInfo.email}
-                                onChange={(e) =>
-                                    setUserInfo((prev) => ({ ...prev, email: e.target.value }))
-                                }
+                                type="radio"
+                                name="paymentMethod"
+                                value="paypal"
+                                checked={paymentMethod === "paypal"}
+                                onChange={(e) => setPaymentMethod(e.target.value)}
                             />
+                            PayPal
                         </label>
-                        <label>
-                            Phone Number
-                            <input
-                                type="tel"
-                                placeholder="Enter your phone number"
-                                required
-                                value={userInfo.phone}
-                                onChange={(e) =>
-                                    setUserInfo((prev) => ({ ...prev, phone: e.target.value }))
-                                }
-                            />
-                        </label>
-                    </form>
-                ) : (
-                    <div>
-                        <p>
-                            <strong>Name:</strong> {userInfo.fullName}
-                        </p>
-                        <p>
-                            <strong>Email:</strong> {userInfo.email}
-                        </p>
-                        <p>
-                            <strong>Phone:</strong> {userInfo.phone}
-                        </p>
                     </div>
-                )}
 
-                <h2>Payment Information</h2>
-                <div className="payment-methods">
-                    <label>
-                        <input
-                            type="radio"
-                            name="paymentMethod"
-                            value="creditCard"
-                            checked={paymentMethod === "creditCard"}
-                            onChange={(e) => setPaymentMethod(e.target.value)}
-                        />
-                        Credit Card
-                    </label>
-                    <label>
-                        <input
-                            type="radio"
-                            name="paymentMethod"
-                            value="paypal"
-                            checked={paymentMethod === "paypal"}
-                            onChange={(e) => setPaymentMethod(e.target.value)}
-                        />
-                        PayPal
-                    </label>
-                </div>
+                    {paymentMethod === "creditCard" && (
+                        <form>
+                            <label>
+                                Credit Card Number
+                                <input type="text" placeholder="1234 5678 9012 3456" required />
+                            </label>
+                            <label>
+                                Expiration Date
+                                <input type="text" placeholder="MM/YY" required />
+                            </label>
+                            <label>
+                                CVV
+                                <input type="text" placeholder="123" required />
+                            </label>
+                            <button
+                                type="button"
+                                className="confirm-booking-button"
+                                onClick={handleBookingSubmission}
+                            >
+                                Confirm Booking
+                            </button>
+                        </form>
+                    )}
 
-                {paymentMethod === "creditCard" && (
-                    <form>
-                        <label>
-                            Credit Card Number
-                            <input type="text" placeholder="1234 5678 9012 3456" required />
-                        </label>
-                        <label>
-                            Expiration Date
-                            <input type="text" placeholder="MM/YY" required />
-                        </label>
-                        <label>
-                            CVV
-                            <input type="text" placeholder="123" required />
-                        </label>
+                    {paymentMethod === "paypal" && (
                         <button
                             type="button"
-                            className="confirm-booking-button"
-                            onClick={handleBookingSubmission}
+                            className="confirm-booking-button paypal-button"
+                            onClick={handlePayPalPayment}
                         >
-                            Confirm Booking
+                            Pay with PayPal
                         </button>
-                    </form>
-                )}
+                    )}
+                </div>
 
-                {paymentMethod === "paypal" && (
-                    <button
-                        type="button"
-                        className="confirm-booking-button paypal-button"
-                        onClick={handlePayPalPayment}
-                    >
-                        Pay with PayPal
-                    </button>
-                )}
-            </div>
-
-            {/* Sticky Reservation Summary */}
-            <div className="reservation-summary">
-                <h2>Reservation Summary</h2>
-                <ul>
-                    {state.roomsx.map((room, index) => (
-                        <div key={index}>
-                            <li>
-                                <p>
-                                    <strong>Room:</strong> {room.type_name}
-                                </p>
-                            </li>
-                            <li>
-                                <p>
-                                    <strong>Guests:</strong> {room.guests}
-                                </p>
-                            </li>
-                            <li>
-                                <p>
-                                    <strong>Price:</strong> ${room.rates}
-                                </p>
-                            </li>
-                        </div>
-                    ))}
-                </ul>
-                <p>
-                    <strong>Total Price:</strong> ${state.total}
-                </p>
+                {/* Sticky Reservation Summary */}
+                <div className="reservation-summary">
+                    <h2>Reservation Summary</h2>
+                    <ul>
+                        {state.roomsx.map((room, index) => (
+                            <div key={index}>
+                                <li>
+                                    <p>
+                                        <strong>Room:</strong> {room.type_name}
+                                    </p>
+                                </li>
+                                <li>
+                                    <p>
+                                        <strong>Guests:</strong> {room.guests}
+                                    </p>
+                                </li>
+                                <li>
+                                    <p>
+                                        <strong>Price:</strong> ${room.rates}
+                                    </p>
+                                </li>
+                            </div>
+                        ))}
+                    </ul>
+                    <p>
+                        <strong>Total Price:</strong> ${state.total}
+                    </p>
+                </div>
             </div>
         </div>
-    </div>
-);
+    );
 };
 
 export default Payment;
