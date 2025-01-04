@@ -1073,7 +1073,7 @@ app.put('/api/ROOM', (req, res) => {
 
                     // Get all ids from the first array that overlap with the provided range
                     const overlappingIds = resultsb
-                        .filter(item => { return (Date(item.check_in_date) <= Date(check_out_date) && Date(item.check_out_date) >= Date(check_in_date)); })
+                        .filter(item => { return ((new Date(item.check_in_date)) <= (new Date(check_out_date)) && (new Date(item.check_out_date)) >= (new Date(check_in_date))); })
                         .map(item => item.id);
 
                     // Remove objects from the second array if their id is in the overlappingIds
