@@ -217,7 +217,7 @@ app.post('/api/login', (req, res) => {
 
             // Step 4: Generate JWT token
             const token = jwt.sign(
-                { userId: user.user_id, guestId: guestId, role: user.role, firstName: user.first_name},
+                { userId: user.user_id, guestId: guestId, role: user.role, firstName: user.first_name },
                 SECRET_KEY,
                 { expiresIn: '1h' }
             );
@@ -228,8 +228,8 @@ app.post('/api/login', (req, res) => {
                 secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
                 sameSite: 'strict',
             });
-            
-            
+
+
 
             // Respond with success and user role
             res.json({ success: true, message: 'Login successful', role: user.role });
