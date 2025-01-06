@@ -346,25 +346,32 @@ app.get('/api', (req, res) => {
 app.post("/api/paypal/create-payment", async (req, res) => {
     const { total, currency = "USD", guestInfo, bookingDetails } = req.body;
 
+    // Validate input
     if (!total || !guestInfo || !bookingDetails) {
         console.error("Missing payment or booking details:", { total, guestInfo, bookingDetails });
         return res.status(400).json({ error: "Missing payment or booking details" });
     }
 
-    // Generate a unique booking reference or use a short identifier
-    const bookingReference = `BK-${Date.now()}`; // Example: "BK-1672995831000"
+    // Create JWT for guest and booking details
+    const token = jwt.sign({ guestInfo, bookingDetails }, SECRET_KEY, { expiresIn: '1h' });
 
+    // Set cookie with the payment token
+    res.cookie('PaymentToken', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+    });
+
+    // Create PayPal order
+    const bookingReference = `BK-${Date.now()}`;
     const request = new paypal.orders.OrdersCreateRequest();
     request.prefer("return=representation");
     request.requestBody({
         intent: "CAPTURE",
         purchase_units: [
             {
-                amount: {
-                    currency_code: currency,
-                    value: total.toFixed(2),
-                },
-                custom_id: bookingReference, // Store a shorter identifier
+                amount: { currency_code: currency, value: total.toFixed(2) },
+                custom_id: bookingReference, // Shorter identifier
             },
         ],
         application_context: {
@@ -378,10 +385,16 @@ app.post("/api/paypal/create-payment", async (req, res) => {
 
     try {
         const order = await paypalClient.execute(request);
+
+        // Ensure `approvalUrl` is extracted from the correct link in PayPal's response
+        const approvalUrl = order.result.links.find(link => link.rel === "approve")?.href;
+
+        if (!approvalUrl) {
+            throw new Error("Approval URL not found in PayPal response.");
+        }
+
         console.log("PayPal Order Created:", JSON.stringify(order.result, null, 2));
-        
-        // Optionally, save bookingReference with guestInfo and bookingDetails in your database
-        res.json({ id: order.result.id, approvalUrl: order.result.links[1].href });
+        res.json({ id: order.result.id, approvalUrl });
     } catch (err) {
         console.error("PayPal Create Payment Error:", JSON.stringify(err, null, 2));
         res.status(500).json({ error: "Error creating PayPal payment", details: err });
@@ -392,8 +405,29 @@ app.post("/api/paypal/create-payment", async (req, res) => {
 
 
 
+
 app.get("/api/paypal/execute-payment", async (req, res) => {
     const { token } = req.query;
+
+    // Log cookies and extract PaymentToken
+    console.log("Cookies:", req.cookies);
+    const paymentToken = req.cookies.PaymentToken;
+
+    if (!paymentToken) {
+        console.error("No PaymentToken cookie provided");
+        return res.status(403).json({ error: 'No token provided' });
+    }
+
+    // Decode guest and booking details
+    let guestInfo, bookingDetails;
+    try {
+        const decoded = jwt.verify(paymentToken, SECRET_KEY);
+        guestInfo = decoded.guestInfo;
+        bookingDetails = decoded.bookingDetails;
+    } catch (err) {
+        console.error("Error verifying token:", err);
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
 
     if (!token) {
         return res.status(400).json({ error: "Missing PayPal token" });
@@ -402,26 +436,15 @@ app.get("/api/paypal/execute-payment", async (req, res) => {
     const request = new paypal.orders.OrdersCaptureRequest(token);
 
     try {
+        // Capture payment
         const capture = await paypalClient.execute(request);
-
         console.log("PayPal Capture Result:", JSON.stringify(capture.result, null, 2));
 
-        // Extract the captured data
         const purchaseUnit = capture.result.purchase_units?.[0];
         const captureDetails = purchaseUnit?.payments?.captures?.[0];
 
         if (!purchaseUnit || !captureDetails) {
-            console.error("Invalid PayPal response structure");
-            return res.status(400).json({ error: "Invalid PayPal response structure" });
-        }
-
-        // Extract guest and booking details from the custom_id
-        const customData = JSON.parse(purchaseUnit.custom_id || "{}");
-        const { guestInfo, bookingDetails } = customData;
-
-        if (!guestInfo || !bookingDetails) {
-            console.error("Missing guest or booking details");
-            return res.status(400).json({ error: "Missing guest or booking details" });
+            throw new Error("Invalid PayPal response structure");
         }
 
         // Save booking to the database
@@ -432,7 +455,7 @@ app.get("/api/paypal/execute-payment", async (req, res) => {
                 rooms: bookingDetails.rooms,
                 startDate: bookingDetails.startDate,
                 endDate: bookingDetails.endDate,
-                totalPrice: captureDetails.amount.value, // Use the captured amount dynamically
+                totalPrice: captureDetails.amount.value,
                 guestInfo,
                 paymentMethod: "PayPal",
             }),
@@ -444,7 +467,7 @@ app.get("/api/paypal/execute-payment", async (req, res) => {
             return res.status(500).json({ error: "Error saving booking to the database" });
         }
 
-        // Redirect to confirmation page after success
+        // Redirect to confirmation page
         const bookingData = await saveResponse.json();
         res.redirect(`/confirmation?bookingId=${bookingData.bookingIds[0]}`);
     } catch (err) {
@@ -452,6 +475,7 @@ app.get("/api/paypal/execute-payment", async (req, res) => {
         res.status(500).json({ error: "Error capturing PayPal payment" });
     }
 });
+
 
 
 

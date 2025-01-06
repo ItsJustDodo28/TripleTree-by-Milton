@@ -8,8 +8,7 @@ const Payment = () => {
     const state = location.state || {};
     const [userInfo, setUserInfo] = useState({ fullName: "", email: "", phone: "" });
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [paymentMethod, setPaymentMethod] = useState("creditCard"); // Default to credit card
-    const [paymentSuccess, setPaymentSuccess] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState("paypal");
 
     // Check if the user is logged in and fetch profile if so
     useEffect(() => {
@@ -35,93 +34,73 @@ const Payment = () => {
         checkAuth();
     }, []);
 
-    // Save booking details to the database
-    const saveBookingToDatabase = async () => {
-        try {
-            const response = await fetch("/api/booking/save", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                credentials: "include",
-                body: JSON.stringify({
-                    rooms: state.roomsx,
-                    startDate: state.startDate,
-                    endDate: state.endDate,
-                    totalPrice: state.total,
-                    guestInfo: userInfo,
-                    paymentMethod: paymentMethod,
-                }),
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                console.log("Booking saved successfully:", data);
-                alert("Booking confirmed successfully!");
-                navigate("/confirmation", { state: { bookingId: data.bookingId } });
-            } else {
-                const errorData = await response.json();
-                console.error("Error saving booking:", errorData);
-                alert(`Error: ${errorData.error}`);
-            }
-        } catch (error) {
-            console.error("Error saving booking to database:", error);
-            alert("An error occurred while saving the booking.");
-        }
-    };
-
-    // Handle form submission
-    const handleBookingSubmission = async () => {
-        if (!state.roomsx || !state.total) {
-            alert("Invalid booking details.");
-            return;
-        }
-
-        if (paymentMethod === "creditCard") {
-            await saveBookingToDatabase();
-        }
-    };
-
-    // PayPal payment flow
     const handlePayPalPayment = async () => {
-        try {
-            const response = await fetch("/api/paypal/create-payment", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
+        // Load the PayPal script dynamically
+        const paypalScript = document.createElement("script");
+        paypalScript.src = "https://www.paypal.com/sdk/js?client-id=AQW0yQnJBG050nvrf-bLQ-4pWFkj9sI4Axk7wJsqUu1K4I21mg5WBeI74nULj4twkZrwX0w1Q1CJyGJc&currency=USD";
+        paypalScript.onload = () => {
+            window.paypal.Buttons({
+                createOrder: async (data, actions) => {
+                    try {
+                        const response = await fetch("/api/paypal/create-payment", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            credentials: "include",
+                            body: JSON.stringify({
+                                total: state.total,
+                                currency: "USD",
+                                guestInfo: userInfo,
+                                bookingDetails: {
+                                    rooms: state.roomsx,
+                                    startDate: state.startDate,
+                                    endDate: state.endDate,
+                                },
+                            }),
+                        });
+                        const result = await response.json();
+                        if (result.id) {
+                            return result.id;
+                        } else {
+                            throw new Error("Failed to create PayPal order");
+                        }
+                    } catch (error) {
+                        console.error("Error creating PayPal order:", error);
+                    }
                 },
-                credentials: "include",
-                body: JSON.stringify({
-                    total: state.total,
-                    currency: "USD",
-                    guestInfo: userInfo,
-                    bookingDetails: {
-                        rooms: state.roomsx,
-                        startDate: state.startDate,
-                        endDate: state.endDate,
-                    },
-                }),
-            });
-    
-            const data = await response.json();
-            if (data.approvalUrl) {
-                window.location.href = data.approvalUrl; // Redirect to PayPal
-            } else {
-                console.error("PayPal Create Payment Error Response:", data);
-                alert("Error initiating PayPal payment.");
-            }
-        } catch (error) {
-            console.error("Error initiating PayPal payment:", error);
-            alert("Error initiating PayPal payment.");
-        }
+                onApprove: async (data, actions) => {
+                    try {
+                        const response = await fetch(`/api/paypal/execute-payment?token=${data.orderID}`, {
+                            method: "GET",
+                            credentials: "include",
+                        });
+                        if (response.ok) {
+                            alert("Payment successful!");
+                            navigate("/confirmation");
+                        } else {
+                            console.error("Error executing payment:", await response.json());
+                        }
+                    } catch (error) {
+                        console.error("Error executing PayPal payment:", error);
+                    }
+                },
+                onError: (error) => {
+                    console.error("PayPal button error:", error);
+                },
+            }).render("#paypal-button-container");
+        };
+        document.body.appendChild(paypalScript);
     };
-    
+
+    useEffect(() => {
+        if (paymentMethod === "paypal") {
+            handlePayPalPayment();
+        }
+    }, [paymentMethod]);
 
     return (
         <div className="payment-page">
             <h1>Complete Your Booking</h1>
             <div className="payment-container">
-                {/* Guest Information and Payment Form */}
                 <div className="payment-form">
                     <h2>Guest Information</h2>
                     {!isLoggedIn ? (
@@ -131,11 +110,8 @@ const Payment = () => {
                                 <input
                                     type="text"
                                     placeholder="Enter your full name"
-                                    required
                                     value={userInfo.fullName}
-                                    onChange={(e) =>
-                                        setUserInfo((prev) => ({ ...prev, fullName: e.target.value }))
-                                    }
+                                    onChange={(e) => setUserInfo({ ...userInfo, fullName: e.target.value })}
                                 />
                             </label>
                             <label>
@@ -143,11 +119,8 @@ const Payment = () => {
                                 <input
                                     type="email"
                                     placeholder="Enter your email"
-                                    required
                                     value={userInfo.email}
-                                    onChange={(e) =>
-                                        setUserInfo((prev) => ({ ...prev, email: e.target.value }))
-                                    }
+                                    onChange={(e) => setUserInfo({ ...userInfo, email: e.target.value })}
                                 />
                             </label>
                             <label>
@@ -155,11 +128,8 @@ const Payment = () => {
                                 <input
                                     type="tel"
                                     placeholder="Enter your phone number"
-                                    required
                                     value={userInfo.phone}
-                                    onChange={(e) =>
-                                        setUserInfo((prev) => ({ ...prev, phone: e.target.value }))
-                                    }
+                                    onChange={(e) => setUserInfo({ ...userInfo, phone: e.target.value })}
                                 />
                             </label>
                         </form>
@@ -178,65 +148,10 @@ const Payment = () => {
                     )}
 
                     <h2>Payment Information</h2>
-                    <div className="payment-methods">
-                        <label>
-                            <input
-                                type="radio"
-                                name="paymentMethod"
-                                value="creditCard"
-                                checked={paymentMethod === "creditCard"}
-                                onChange={(e) => setPaymentMethod(e.target.value)}
-                            />
-                            Credit Card
-                        </label>
-                        <label>
-                            <input
-                                type="radio"
-                                name="paymentMethod"
-                                value="paypal"
-                                checked={paymentMethod === "paypal"}
-                                onChange={(e) => setPaymentMethod(e.target.value)}
-                            />
-                            PayPal
-                        </label>
+                        <div className="payment-methods">
+                        <div id="paypal-button-container"></div>
                     </div>
-
-                    {paymentMethod === "creditCard" && (
-                        <form>
-                            <label>
-                                Credit Card Number
-                                <input type="text" placeholder="1234 5678 9012 3456" required />
-                            </label>
-                            <label>
-                                Expiration Date
-                                <input type="text" placeholder="MM/YY" required />
-                            </label>
-                            <label>
-                                CVV
-                                <input type="text" placeholder="123" required />
-                            </label>
-                            <button
-                                type="button"
-                                className="confirm-booking-button"
-                                onClick={handleBookingSubmission}
-                            >
-                                Confirm Booking
-                            </button>
-                        </form>
-                    )}
-
-                    {paymentMethod === "paypal" && (
-                        <button
-                            type="button"
-                            className="confirm-booking-button paypal-button"
-                            onClick={handlePayPalPayment}
-                        >
-                            Pay with PayPal
-                        </button>
-                    )}
                 </div>
-
-                {/* Sticky Reservation Summary */}
                 <div className="reservation-summary">
                     <h2>Reservation Summary</h2>
                     <ul>
