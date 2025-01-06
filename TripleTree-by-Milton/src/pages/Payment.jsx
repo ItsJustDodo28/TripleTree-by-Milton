@@ -35,7 +35,7 @@ const Payment = () => {
         checkAuth();
     }, []);
 
-    // Call the /api/booking/save endpoint to save booking in the backend
+    // Save booking details to the database
     const saveBookingToDatabase = async () => {
         try {
             const response = await fetch("/api/booking/save", {
@@ -58,7 +58,7 @@ const Payment = () => {
                 const data = await response.json();
                 console.log("Booking saved successfully:", data);
                 alert("Booking confirmed successfully!");
-                navigate("/confirmation", { state: { bookingId: data.bookingIds } });
+                navigate("/confirmation", { state: { bookingId: data.bookingId } });
             } else {
                 const errorData = await response.json();
                 console.error("Error saving booking:", errorData);
@@ -94,19 +94,28 @@ const Payment = () => {
                 body: JSON.stringify({
                     total: state.total,
                     currency: "USD",
+                    guestInfo: userInfo,
+                    bookingDetails: {
+                        rooms: state.roomsx,
+                        startDate: state.startDate,
+                        endDate: state.endDate,
+                    },
                 }),
             });
-
+    
             const data = await response.json();
             if (data.approvalUrl) {
-                window.location.href = data.approvalUrl; // Redirect to PayPal approval page
+                window.location.href = data.approvalUrl; // Redirect to PayPal
             } else {
+                console.error("PayPal Create Payment Error Response:", data);
                 alert("Error initiating PayPal payment.");
             }
         } catch (error) {
             console.error("Error initiating PayPal payment:", error);
+            alert("Error initiating PayPal payment.");
         }
     };
+    
 
     return (
         <div className="payment-page">

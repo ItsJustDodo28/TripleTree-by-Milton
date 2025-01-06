@@ -12,6 +12,7 @@ const uuid = require('uuid');
 const paypal = require("@paypal/checkout-server-sdk"); 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const fetch = require("node-fetch");
 
 const SECRET_KEY = 'your_secret_key';
 // Middleware
@@ -53,7 +54,7 @@ const environment =
               process.env.PAYPAL_CLIENT_ID,
               process.env.PAYPAL_CLIENT_SECRET
           );
-
+          
 const paypalClient = new paypal.core.PayPalHttpClient(environment);
 
 //////////////////////////////////// login //////////////////////////////////////
@@ -343,11 +344,15 @@ app.get('/api', (req, res) => {
 });
 
 app.post("/api/paypal/create-payment", async (req, res) => {
-    const { total, currency = "USD" } = req.body;
+    const { total, currency = "USD", guestInfo, bookingDetails } = req.body;
 
-    if (!total) {
-        return res.status(400).json({ error: "Total amount is required" });
+    if (!total || !guestInfo || !bookingDetails) {
+        console.error("Missing payment or booking details:", { total, guestInfo, bookingDetails });
+        return res.status(400).json({ error: "Missing payment or booking details" });
     }
+
+    // Generate a unique booking reference or use a short identifier
+    const bookingReference = `BK-${Date.now()}`; // Example: "BK-1672995831000"
 
     const request = new paypal.orders.OrdersCreateRequest();
     request.prefer("return=representation");
@@ -359,6 +364,7 @@ app.post("/api/paypal/create-payment", async (req, res) => {
                     currency_code: currency,
                     value: total.toFixed(2),
                 },
+                custom_id: bookingReference, // Store a shorter identifier
             },
         ],
         application_context: {
@@ -372,18 +378,25 @@ app.post("/api/paypal/create-payment", async (req, res) => {
 
     try {
         const order = await paypalClient.execute(request);
+        console.log("PayPal Order Created:", JSON.stringify(order.result, null, 2));
+        
+        // Optionally, save bookingReference with guestInfo and bookingDetails in your database
         res.json({ id: order.result.id, approvalUrl: order.result.links[1].href });
     } catch (err) {
-        console.error("PayPal Create Payment Error:", err);
-        res.status(500).json({ error: "Error creating PayPal payment" });
+        console.error("PayPal Create Payment Error:", JSON.stringify(err, null, 2));
+        res.status(500).json({ error: "Error creating PayPal payment", details: err });
     }
 });
 
-app.get("/api/paypal/execute-payment", async (req, res) => {
-    const { token, PayerID } = req.query;
 
-    if (!token || !PayerID) {
-        return res.status(400).json({ error: "Invalid PayPal payment details" });
+
+
+
+app.get("/api/paypal/execute-payment", async (req, res) => {
+    const { token } = req.query;
+
+    if (!token) {
+        return res.status(400).json({ error: "Missing PayPal token" });
     }
 
     const request = new paypal.orders.OrdersCaptureRequest(token);
@@ -391,15 +404,60 @@ app.get("/api/paypal/execute-payment", async (req, res) => {
     try {
         const capture = await paypalClient.execute(request);
 
-        // Save booking details to the database
-        const bookingId = await saveBookingToDatabase(capture.result);
+        console.log("PayPal Capture Result:", JSON.stringify(capture.result, null, 2));
 
-        res.redirect(`/confirmation?bookingId=${bookingId}`);
+        // Extract the captured data
+        const purchaseUnit = capture.result.purchase_units?.[0];
+        const captureDetails = purchaseUnit?.payments?.captures?.[0];
+
+        if (!purchaseUnit || !captureDetails) {
+            console.error("Invalid PayPal response structure");
+            return res.status(400).json({ error: "Invalid PayPal response structure" });
+        }
+
+        // Extract guest and booking details from the custom_id
+        const customData = JSON.parse(purchaseUnit.custom_id || "{}");
+        const { guestInfo, bookingDetails } = customData;
+
+        if (!guestInfo || !bookingDetails) {
+            console.error("Missing guest or booking details");
+            return res.status(400).json({ error: "Missing guest or booking details" });
+        }
+
+        // Save booking to the database
+        const saveResponse = await fetch("http://localhost:5000/api/booking/save", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                rooms: bookingDetails.rooms,
+                startDate: bookingDetails.startDate,
+                endDate: bookingDetails.endDate,
+                totalPrice: captureDetails.amount.value, // Use the captured amount dynamically
+                guestInfo,
+                paymentMethod: "PayPal",
+            }),
+        });
+
+        if (!saveResponse.ok) {
+            const errorResponse = await saveResponse.json();
+            console.error("Error saving booking:", errorResponse);
+            return res.status(500).json({ error: "Error saving booking to the database" });
+        }
+
+        // Redirect to confirmation page after success
+        const bookingData = await saveResponse.json();
+        res.redirect(`/confirmation?bookingId=${bookingData.bookingIds[0]}`);
     } catch (err) {
-        console.error("PayPal Execute Payment Error:", err);
+        console.error("PayPal Execute Payment Error:", err.message);
         res.status(500).json({ error: "Error capturing PayPal payment" });
     }
 });
+
+
+
+
+
+
 
 // Save Booking to Database API Endpoint
 app.post("/api/booking/save", async (req, res) => {
